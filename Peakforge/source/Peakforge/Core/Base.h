@@ -1,6 +1,6 @@
 #pragma once
 
 #ifdef PF_PLATFORM_WINDOWS
-#endif
+#else
 	#error Peakforge only supports Windows!
 #endif

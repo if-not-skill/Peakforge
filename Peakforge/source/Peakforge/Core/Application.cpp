@@ -13,6 +13,9 @@ namespace PF::Core
 
 	void Application::Run()
 	{
+		Log::Log::Init();
+		LOG_CORE_INFO("Loggers Initialized!");
+
 		while (true) 
 		{
 

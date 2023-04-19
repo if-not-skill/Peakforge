@@ -1,0 +1,3 @@
+[submodule "Peakforge/vendor/spdlog"]
+	path = Peakforge/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git

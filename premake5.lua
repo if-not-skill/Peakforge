@@ -36,7 +36,8 @@ project "Peakforge"
 
     includedirs
     {
-        "%{prj.name}/source"
+        "%{prj.name}/source",
+        "%{prj.name}/vendor/spdlog/include"
     }
 
     links
@@ -87,7 +88,7 @@ project "Sandbox"
     includedirs
     {
         "Peakforge/source",
-        "Peakforge/vendor",
+        "Peakforge/vendor/spdlog/include"
     }
 
     links
