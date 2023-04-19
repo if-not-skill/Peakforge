@@ -1,3 +1,6 @@
 [submodule "Peakforge/vendor/spdlog"]
 	path = Peakforge/vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Peakforge/vendor/imgui"]
+	path = Peakforge/vendor/imgui
+	url = https://github.com/if-not-skill/imgui.git

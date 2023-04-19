@@ -12,8 +12,11 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
+IncludeDir["ImGui"] = "Peakforge/vendor/imgui"
 
 startproject "Sandbox"
+
+include "Peakforge/vendor/ImGui"
 
 project "Peakforge"
     location "Peakforge"
@@ -37,11 +40,13 @@ project "Peakforge"
     includedirs
     {
         "%{prj.name}/source",
-        "%{prj.name}/vendor/spdlog/include"
+        "%{prj.name}/vendor/spdlog/include",
+        "%{IncludeDir.ImGui}",
     }
 
     links
     {
+        "ImGui",
     }
 
     filter "system:windows"
