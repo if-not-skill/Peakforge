@@ -1,6 +1,6 @@
 #include <Peakforge.h>
 
-class Sandbox : public PF::Core::Application
+class Sandbox : public PF::Application
 {
 public:
 	Sandbox() 
@@ -14,7 +14,7 @@ public:
 	}
 };
 
-PF::Core::Application* PF::Core::CreateApplication()
+PF::Application* PF::CreateApplication()
 {
 	return new Sandbox();
 }

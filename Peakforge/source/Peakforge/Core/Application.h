@@ -1,6 +1,6 @@
 #pragma once
 
-namespace PF::Core
+namespace PF
 {
 	class Application 
 	{
