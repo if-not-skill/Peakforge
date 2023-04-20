@@ -1,8 +1,9 @@
 #pragma once
 
 // =======Core================================
-#include "Peakforge/Core/Application.h"
 #include "Peakforge/Core/Log.h"
+#include "Peakforge/Core/Application.h"
+#include "Peakforge/Core/Assert.h"
 // ===========================================
 
 // =======Events==============================

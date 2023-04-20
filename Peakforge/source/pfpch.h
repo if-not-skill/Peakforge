@@ -13,6 +13,7 @@
 #include <unordered_set>
 
 #include "Peakforge/Core/Log.h"
+#include "Peakforge/Core/Assert.h"
 
 #ifdef PF_PLATFORM_WINDOWS
 #include <Windows.h>
