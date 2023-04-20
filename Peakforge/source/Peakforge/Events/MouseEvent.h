@@ -59,7 +59,7 @@ namespace PF
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 
 	protected:
-		MouseButtonEvent(int button)
+		MouseButtonEvent(unsigned int button)
 			: m_Button(button) {}
 
 		int m_Button;
@@ -68,7 +68,7 @@ namespace PF
 	class MouseButtonPressedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonPressedEvent(int button)
+		MouseButtonPressedEvent(unsigned int button)
 			: MouseButtonEvent(button) {}
 
 		std::string ToString() const override
@@ -84,7 +84,7 @@ namespace PF
 	class MouseButtonReleasedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonReleasedEvent(int button)
+		MouseButtonReleasedEvent(unsigned int button)
 			: MouseButtonEvent(button) {}
 
 		std::string ToString() const override
@@ -95,5 +95,21 @@ namespace PF
 		}
 
 		EVENT_CLASS_TYPE(MouseButtonReleased)
+	};
+
+	class MouseButtonDoubleClickEvent : public MouseButtonEvent
+	{
+	public:
+		MouseButtonDoubleClickEvent(unsigned int button)
+			: MouseButtonEvent(button) {}
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "MouseButtonDoubleClickEvent: " << m_Button;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(MouseButtonDoubleClick)
 	};
 }

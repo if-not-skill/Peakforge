@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Window.h"
+#include "Peakforge/Events/ApplicationEvent.h"
 
 namespace PF
 {
@@ -11,6 +12,10 @@ namespace PF
 		virtual ~Application();
 
 		void Run();
+		void OnEvent(Event& e);
+
+	private:
+		bool OnWindowClose(WindowCloseEvent& e);
 
 	private:
 		std::unique_ptr<Window> m_Window;

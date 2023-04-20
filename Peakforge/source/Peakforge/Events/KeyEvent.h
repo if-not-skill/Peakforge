@@ -7,20 +7,20 @@ namespace PF
 	class KeyEvent : public Event
 	{
 	public:
-		inline int GetKeyCode() const { return m_KeyCode; }
+		inline unsigned int GetKeyCode() const { return m_KeyCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
 	protected:
-		KeyEvent(int keycode)
+		KeyEvent(unsigned int  keycode)
 			: m_KeyCode(keycode) {}
 
-		int m_KeyCode;
+		unsigned int m_KeyCode;
 	};
 
 	class KeyPressedEvent : public KeyEvent
 	{
 	public:
-		KeyPressedEvent(int keycode, int repeatCount)
+		KeyPressedEvent(unsigned int  keycode, int repeatCount)
 			: KeyEvent(keycode), m_RepeatCount(repeatCount) {}
 
 		inline int GetRepeatCount() const { return m_RepeatCount; }
@@ -28,7 +28,7 @@ namespace PF
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats";
+			ss << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << ") repeats";
 			return ss.str();
 		}
 
@@ -41,7 +41,7 @@ namespace PF
 	class KeyReleasedEvent : public KeyEvent
 	{
 	public:
-		KeyReleasedEvent(int keycode)
+		KeyReleasedEvent(unsigned int keycode)
 			: KeyEvent(keycode) {}
 
 		std::string ToString() const override
@@ -57,13 +57,13 @@ namespace PF
 	class KeyTypedEvent : public KeyEvent
 	{
 	public:
-		KeyTypedEvent(int keycode)
+		KeyTypedEvent(unsigned int  keycode)
 			: KeyEvent(keycode) {}
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyTypedEvent: " << m_KeyCode;
+			ss << "KeyTypedEvent: " << (char)m_KeyCode;
 			return ss.str();
 		}
 
