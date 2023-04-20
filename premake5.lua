@@ -13,6 +13,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["ImGui"] = "Peakforge/vendor/imgui"
+IncludeDir["glm"] = "Peakforge/vendor/glm"
 
 startproject "Sandbox"
 
@@ -35,6 +36,8 @@ project "Peakforge"
     {
         "%{prj.name}/source/**.h",
         "%{prj.name}/source/**.cpp",
+        "%{prj.name}/vendor/glm/glm/**.hpp",
+        "%{prj.name}/vendor/glm/glm/**.inl",
     }
 
     includedirs
@@ -42,11 +45,23 @@ project "Peakforge"
         "%{prj.name}/source",
         "%{prj.name}/vendor/spdlog/include",
         "%{IncludeDir.ImGui}",
+        "%{IncludeDir.glm}",
     }
 
     links
     {
         "ImGui",
+        "d3d11.lib",
+        "dxgi.lib",
+        "dxguid.lib",
+        "uuid.lib",
+        "kernel32.lib",
+        "user32.lib",
+        "comdlg32.lib",
+        "advapi32.lib",
+        "shell32.lib",
+        "ole32.lib",
+        "oleaut32.lib"
     }
 
     filter "system:windows"
@@ -92,8 +107,9 @@ project "Sandbox"
 
     includedirs
     {
+        "Peakforge/vendor/spdlog/include",
         "Peakforge/source",
-        "Peakforge/vendor/spdlog/include"
+        "%{IncludeDir.glm}",
     }
 
     links
