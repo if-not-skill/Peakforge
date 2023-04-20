@@ -23,19 +23,19 @@ namespace PF
 		PF_CORE_ASSERT(!m_Instance, "Window must be instance");
 		m_Instance = this;
 
-		bool success = Init(props);
+		const bool success = Init(props);
 		PF_CORE_ASSERT(success, "Could not initialize WinApi Window!");
 	}
 	
 	WindowsWindow::~WindowsWindow()
 	{
-		Shutdown();
+		WindowsWindow::Shutdown();
 	}
 	
 	void WindowsWindow::OnUpdate()
 	{
 		MSG msg = {};
-		if (GetMessage(&msg, NULL, 0, 0) > 0) 
+		if (GetMessage(&msg, nullptr, 0, 0) > 0) 
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -68,10 +68,10 @@ namespace PF
 		wc.cbSize = sizeof(WNDCLASSEX);
 		wc.cbWndExtra = NULL;
 		wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-		wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
-		wc.hInstance = NULL;
+		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+		wc.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
+		wc.hInstance = nullptr;
 		wc.lpszClassName = CLASS_NAME;
 		wc.lpszMenuName = L"";
 		wc.style = CS_DBLCLKS;
