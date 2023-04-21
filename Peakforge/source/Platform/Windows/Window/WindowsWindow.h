@@ -15,19 +15,32 @@ namespace PF
 
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 
+		inline HWND GetHWND() const { return m_Hwnd; }
 		inline unsigned int GetWidth() const override { return m_Data.Width; }
 		inline unsigned int GetHeight() const override { return m_Data.Height; };
 
 		inline bool IsVSync() const override { return m_Data.VSync; }
 	
+		void* GetNativeWindow() const override { return s_Instance; };
+
 	private:
+		inline bool SetupedCallback() const { return m_Data.EventCallback != nullptr; }
+
 		virtual bool Init(const WindowProps& props);
 		virtual void Shutdown();
 
 		// === Event Handlers =========================================================
-		// Application Handlers
+		// Window Handlers
 		void OnWindowSize(WPARAM wparam, LPARAM lparam);
+		void OnWindowSize(LONG width, LONG height);
 		void OnWindowDestroy();
+		
+		// App Handlers
+		void OnAppActivate();
+		void OnAppDeactivate();
+		void OnAppRender();
+		void OnAppSuspending();
+		void OnAppResuming();
 
 		// Keyboard Handlers
 		void OnKeyHandler(UINT msg, WPARAM wparam, LPARAM lparam);
@@ -52,7 +65,7 @@ namespace PF
 		std::wstring StrToWStr(const std::string& str);
 
 	private:
-		static WindowsWindow* m_Instance;
+		static WindowsWindow* s_Instance;
 		HWND m_Hwnd;
 
 		struct WindowData 

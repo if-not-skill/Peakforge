@@ -62,4 +62,40 @@ namespace PF
 		EVENT_CLASS_TYPE(AppRender)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
+
+	class AppSuspendingEvent : public Event
+	{
+	public:
+		AppSuspendingEvent() = default;
+
+		EVENT_CLASS_TYPE(AppSuspending)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class AppResumingEvent : public Event
+	{
+	public:
+		AppResumingEvent() = default;
+
+		EVENT_CLASS_TYPE(AppResuming)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class AppActivateEvent : public Event
+	{
+	public:
+		AppActivateEvent() = default;
+
+		EVENT_CLASS_TYPE(AppActivate)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+	
+	class AppDeactivateEvent : public Event
+	{
+	public:
+		AppDeactivateEvent() = default;
+
+		EVENT_CLASS_TYPE(AppDeactivate)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
 }

@@ -11,7 +11,7 @@
 
 namespace PF 
 {
-	WindowsWindow* WindowsWindow::m_Instance = nullptr;
+	WindowsWindow* WindowsWindow::s_Instance = nullptr;
 
 	Window* Window::Create(const WindowProps& props)
 	{
@@ -20,8 +20,8 @@ namespace PF
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
-		PF_CORE_ASSERT(!m_Instance, "Window must be instance");
-		m_Instance = this;
+		PF_CORE_ASSERT(!s_Instance, "Window must be instance");
+		s_Instance = this;
 
 		const bool success = Init(props);
 		PF_CORE_ASSERT(success, "Could not initialize WinApi Window!");
@@ -35,10 +35,14 @@ namespace PF
 	void WindowsWindow::OnUpdate()
 	{
 		MSG msg = {};
-		if (GetMessage(&msg, nullptr, 0, 0) > 0) 
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) 
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+		}
+		else 
+		{
+			OnAppRender();
 		}
 	}
 
@@ -111,7 +115,7 @@ namespace PF
 
 	void WindowsWindow::OnWindowSize(WPARAM wparam, LPARAM lparam)
 	{
-		if (!m_Data.EventCallback) return;
+		
 
 		UINT width = LOWORD(lparam);
 		UINT height = HIWORD(lparam);
@@ -120,11 +124,45 @@ namespace PF
 		m_Data.EventCallback(event);
 	}
 
+	void WindowsWindow::OnWindowSize(LONG width, LONG height)
+	{
+		WindowResizeEvent event(width, height);
+		m_Data.EventCallback(event);
+	}
+
 	void WindowsWindow::OnWindowDestroy()
 	{
-		if (!m_Data.EventCallback) return;
-
 		WindowCloseEvent event;
+		m_Data.EventCallback(event);
+	}
+
+	void WindowsWindow::OnAppActivate()
+	{
+		AppActivateEvent event;
+		m_Data.EventCallback(event);
+	}
+
+	void WindowsWindow::OnAppDeactivate()
+	{
+		AppDeactivateEvent event;
+		m_Data.EventCallback(event);
+	}
+
+	void WindowsWindow::OnAppRender()
+	{
+		AppRenderEvent event;
+		m_Data.EventCallback(event);
+	}
+
+	void WindowsWindow::OnAppSuspending()
+	{
+		AppSuspendingEvent event;
+		m_Data.EventCallback(event);
+	}
+
+	void WindowsWindow::OnAppResuming()
+	{
+		AppResumingEvent event;
 		m_Data.EventCallback(event);
 	}
 
@@ -152,7 +190,7 @@ namespace PF
 
 	void WindowsWindow::OnKeyPressedHandler(UINT keycode, bool repeats)
 	{
-		if (!m_Data.EventCallback) return;
+		
 
 		KeyPressedEvent event(keycode, repeats);
 		m_Data.EventCallback(event);
@@ -160,7 +198,7 @@ namespace PF
 
 	void WindowsWindow::OnKeyReleasedHandler(UINT keycode)
 	{
-		if (!m_Data.EventCallback) return;
+		
 
 		KeyReleasedEvent event(keycode);
 		m_Data.EventCallback(event);
@@ -209,32 +247,24 @@ namespace PF
 
 	void WindowsWindow::OnMouseButtonPressedHandler(UINT keycode)
 	{
-		if (!m_Data.EventCallback) return;
-
 		MouseButtonPressedEvent event(keycode);
 		m_Data.EventCallback(event);
 	}
 
 	void WindowsWindow::OnMouseButtonReleasedHandler(UINT keycode)
 	{
-		if (!m_Data.EventCallback) return;
-
 		MouseButtonReleasedEvent event(keycode);
 		m_Data.EventCallback(event);
 	}
 
 	void WindowsWindow::OnMouseButtonDoubleClickHandler(UINT keycode)
 	{
-		if (!m_Data.EventCallback) return;
-
 		MouseButtonDoubleClickEvent event(keycode);
 		m_Data.EventCallback(event);
 	}
 
 	void WindowsWindow::OnMouseWheelHandler(WPARAM wparam)
 	{
-		if (!m_Data.EventCallback) return;
-
 		float zDelta = GET_WHEEL_DELTA_WPARAM(wparam);
 		MouseScrolledEvent event(zDelta, zDelta);
 		m_Data.EventCallback(event);
@@ -242,8 +272,6 @@ namespace PF
 
 	void WindowsWindow::OnMouseMoveHandler(LPARAM lparam)
 	{
-		if (!m_Data.EventCallback) return;
-
 		auto xPos = GET_X_LPARAM(lparam);
 		auto yPos = GET_Y_LPARAM(lparam);
 
@@ -295,8 +323,32 @@ namespace PF
 
 	LRESULT WindowsWindow::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
-		switch (msg) 
+		static bool s_InSizeMove = false;
+		static bool s_InSuspend = false;
+		static bool s_Minimized = false;
+		static bool s_Fullscreen = false;
+		// TODO: Set s_Fullscreen to true if defaulting to fullscreen.
+
+		if (!s_Instance->SetupedCallback()) 
+			return DefWindowProc(hwnd, msg, wparam, lparam);
+
+		switch (msg)
 		{
+		case WM_PAINT:
+		{
+			if (s_InSizeMove)
+			{
+				s_Instance->OnAppRender();
+			}
+			else
+			{
+				PAINTSTRUCT ps;
+				std::ignore = BeginPaint(hwnd, &ps);
+				EndPaint(hwnd, &ps);
+			}
+			break;
+		}
+
 #pragma region MOUSE
 		case WM_LBUTTONUP:
 		case WM_LBUTTONDOWN:
@@ -314,17 +366,17 @@ namespace PF
 		case WM_XBUTTONDOWN:
 		case WM_XBUTTONDBLCLK:
 		{
-			m_Instance->OnMouseButtonHandler(msg, wparam, lparam);
+			s_Instance->OnMouseButtonHandler(msg, wparam, lparam);
 			break;
 		}
 
 		case WM_MOUSEWHEEL:
 		{
-			m_Instance->OnMouseWheelHandler(wparam);
+			s_Instance->OnMouseWheelHandler(wparam);
 			break;
 		}
 		case WM_MOUSEMOVE:
-			m_Instance->OnMouseMoveHandler(lparam);
+			s_Instance->OnMouseMoveHandler(lparam);
 			break;
 #pragma endregion
 
@@ -334,12 +386,12 @@ namespace PF
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN:
 		{
-			m_Instance->OnKeyHandler(msg, wparam, lparam);
+			s_Instance->OnKeyHandler(msg, wparam, lparam);
 			break;
 		}
 		case WM_CHAR:
 		{
-			m_Instance->OnKeyTypedHandler(wparam, lparam);
+			s_Instance->OnKeyTypedHandler(wparam, lparam);
 			break;
 		}
 #pragma endregion
@@ -349,11 +401,80 @@ namespace PF
 			break;
 		case WM_SIZE:
 		{
-			m_Instance->OnWindowSize(wparam, lparam);
+			if (wparam == SIZE_MINIMIZED)
+			{
+				if (!s_Minimized)
+				{
+					s_Minimized = true;
+					if (!s_InSuspend)
+						s_Instance->OnAppSuspending();
+					s_InSuspend = true;
+				}
+			}
+			else if (s_Minimized)
+			{
+				s_Minimized = false;
+				if (s_InSuspend)
+					s_Instance->OnAppResuming();
+				s_InSuspend = false;
+			}
+			else if (!s_InSizeMove)
+			{
+				s_Instance->OnWindowSize(wparam, lparam);
+			}
+			break;
+		}
+		case WM_ENTERSIZEMOVE:
+		{
+			s_InSizeMove = true;
+			break;
+		}
+		case WM_EXITSIZEMOVE:
+		{
+			s_InSizeMove = false;
+
+			RECT rc;
+			GetClientRect(hwnd, &rc);
+
+			s_Instance->OnWindowSize(rc.right - rc.left, rc.bottom - rc.top);
+
+			break;
+		}
+		case WM_ACTIVATEAPP:
+		{
+			if (wparam)
+			{
+				s_Instance->OnAppActivate();
+			}
+			else
+			{
+				s_Instance->OnAppDeactivate();
+			}
+			break;
+		}
+		case WM_POWERBROADCAST:
+		{
+			switch (wparam)
+			{
+			case PBT_APMQUERYSUSPEND:
+				if (!s_InSuspend)
+					s_Instance->OnAppSuspending();
+				s_InSuspend = true;
+				return TRUE;
+
+			case PBT_APMRESUMESUSPEND:
+				if (!s_Minimized)
+				{
+					if (s_InSuspend)
+						s_Instance->OnAppResuming();
+					s_InSuspend = false;
+				}
+				return TRUE;
+			}
 			break;
 		}
 		case WM_DESTROY:
-			m_Instance->OnWindowDestroy();
+			s_Instance->OnWindowDestroy();
 			PostQuitMessage(0);
 			return 0;
 		}

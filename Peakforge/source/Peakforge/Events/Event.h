@@ -8,8 +8,8 @@ namespace PF
 	enum class EventType
 	{
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
-		AppTick, AppUpdate, AppRender,
+		WindowClose, WindowResize, WindowMoved,
+		AppActivate, AppDeactivate, AppTick, AppUpdate, AppRender, AppSuspending, AppResuming,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseButtonDoubleClick, MouseMoved, MouseScrolled
 	};

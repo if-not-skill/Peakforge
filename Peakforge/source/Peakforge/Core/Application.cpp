@@ -2,6 +2,7 @@
 #include "Application.h"
 
 #include "Layer.h"
+#include "Peakforge/Renderer/Renderer.h"
 
 namespace PF
 {
@@ -11,6 +12,8 @@ namespace PF
 	{
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(&Application::OnEvent, this));
+
+		Render::Renderer::Init(m_Window->GetNativeWindow());
 	}
 
 	Application::~Application()
@@ -34,6 +37,13 @@ namespace PF
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(&Application::OnWindowClose, this));
+		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(&Application::OnWindowResize, this));
+
+		dispatcher.Dispatch<AppActivateEvent>(BIND_EVENT_FN(&Application::OnAppActivate, this));
+		dispatcher.Dispatch<AppDeactivateEvent>(BIND_EVENT_FN(&Application::OnAppDeactivate, this));
+		dispatcher.Dispatch<AppSuspendingEvent>(BIND_EVENT_FN(&Application::OnAppSuspending, this));
+		dispatcher.Dispatch<AppResumingEvent>(BIND_EVENT_FN(&Application::OnAppResuming, this));
+		dispatcher.Dispatch<AppRenderEvent>(BIND_EVENT_FN(&Application::OnAppRender, this));
 
 		for(auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
 		{
@@ -56,6 +66,40 @@ namespace PF
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_Running = false;
+
+		return false;
+	}
+
+	bool Application::OnWindowResize(WindowResizeEvent& e)
+	{
+		Render::Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+		return false;
+	}
+
+	bool Application::OnAppActivate(AppActivateEvent& e)
+	{
+		return false;
+	}
+
+	bool Application::OnAppDeactivate(AppDeactivateEvent& e)
+	{
+		return false;
+	}
+
+	bool Application::OnAppSuspending(AppSuspendingEvent& e)
+	{
+		Render::Renderer::OnSuspend();
+		return false;
+	}
+
+	bool Application::OnAppResuming(AppResumingEvent& e)
+	{
+		Render::Renderer::OnResume();
+		return false;
+	}
+	bool Application::OnAppRender(AppRenderEvent& e)
+	{
+		Render::Renderer::OnRender();
 		return false;
 	}
 }
