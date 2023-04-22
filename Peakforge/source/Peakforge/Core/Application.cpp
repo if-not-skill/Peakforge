@@ -1,6 +1,8 @@
 #include "pfpch.h"
 #include "Application.h"
 
+#include <utility>
+
 #include "Layer.h"
 #include "Peakforge/Renderer/Renderer.h"
 
@@ -8,9 +10,12 @@ namespace PF
 {
 #define BIND_EVENT_FN(x, y) std::bind(x, y, std::placeholders::_1)
 
-	Application::Application()
+	Application::Application(const std::string& title)
 	{
-		m_Window = std::unique_ptr<Window>(Window::Create());
+		WindowProps props;
+		props.Title = title;
+		
+			m_Window = std::unique_ptr<Window>(Window::Create(props));
 		m_Window->SetEventCallback(BIND_EVENT_FN(&Application::OnEvent, this));
 
 		Render::Renderer::Init(m_Window->GetNativeWindow());

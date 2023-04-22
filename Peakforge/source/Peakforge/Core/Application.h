@@ -13,7 +13,7 @@ namespace PF
 	class Application 
 	{
 	public:
-		Application();
+		Application(const std::string& title = "Peakforge");
 		virtual ~Application();
 
 		void Run();

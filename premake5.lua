@@ -33,7 +33,7 @@ project "Peakforge"
     pchsource "Peakforge/source/pfpch.cpp"
 
     files
-    {
+    {   
         "%{prj.name}/source/**.h",
         "%{prj.name}/source/**.cpp",
         "%{prj.name}/vendor/glm/glm/**.hpp",
@@ -42,6 +42,7 @@ project "Peakforge"
 
     includedirs
     {
+        "%{prj.name}/resources",
         "%{prj.name}/source",
         "%{prj.name}/vendor/spdlog/include",
         "%{IncludeDir.ImGui}",
@@ -105,6 +106,9 @@ project "Sandbox"
     
     files
     {
+        "%{prj.name}/resources/Resource.rc",
+        "%{prj.name}/resources/AppIcon.ico",
+
         "%{prj.name}/source/**.h",
         "%{prj.name}/source/**.cpp"
     }

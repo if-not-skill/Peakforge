@@ -16,7 +16,7 @@ public:
 class Sandbox : public PF::Application
 {
 public:
-	Sandbox() 
+	Sandbox() : Application("Sandbox")
 	{
 		PushLayer(new ExampleLayer());
 	}

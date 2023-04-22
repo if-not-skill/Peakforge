@@ -9,6 +9,8 @@
 
 #define CLASS_NAME L"ApplicationWindowClass"
 
+#define IDI_ICON1 101
+
 namespace PF 
 {
 	WindowsWindow* WindowsWindow::s_Instance = nullptr;
@@ -23,7 +25,7 @@ namespace PF
 		PF_CORE_ASSERT(!s_Instance, "Window must be instance");
 		s_Instance = this;
 
-		const bool success = Init(props);
+		const bool success = WindowsWindow::Init(props);
 		PF_CORE_ASSERT(success, "Could not initialize WinApi Window!");
 	}
 	
@@ -67,15 +69,24 @@ namespace PF
 		LPCWSTR title = props.Title.c_str();
 		#endif
 
+		const HANDLE hIcon = LoadImage
+		(
+			nullptr,
+			L"resources\\AppIcon.ico",
+			IMAGE_ICON,
+			NULL, NULL,
+			LR_LOADFROMFILE
+		);
+
 		WNDCLASSEX wc;
 		wc.cbClsExtra = NULL;
 		wc.cbSize = sizeof(WNDCLASSEX);
 		wc.cbWndExtra = NULL;
 		wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
-		wc.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
 		wc.hInstance = nullptr;
+		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		wc.hIcon = (HICON)hIcon;
+		wc.hIconSm = (HICON)hIcon;
 		wc.lpszClassName = CLASS_NAME;
 		wc.lpszMenuName = L"";
 		wc.style = CS_DBLCLKS;
