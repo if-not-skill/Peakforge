@@ -26,6 +26,9 @@ namespace PF::Render::DX
 		void Suspend() override;
 		void Resume() override;
 
+		inline ID3D11Device* GetD3DDevice() const { return m_D3DDevice.Get(); }
+		inline ID3D11DeviceContext* GetD3DContext() const { return m_D3DContext.Get(); }
+
 	private:
 		void Clear();
 		void Present();

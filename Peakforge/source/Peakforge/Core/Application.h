@@ -4,7 +4,7 @@
 #include "LayerStack.h"
 #include "Peakforge/Events/ApplicationEvent.h"
 
-#include "Peakforge/Renderer/RenderAPI.h"
+#include "Peakforge/ImGui/ImGuiLayer.h"
 
 namespace PF
 {
@@ -22,6 +22,9 @@ namespace PF
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
 
+		static inline Application& Get() { return *s_Instance; }
+		inline Window& GetWindow() const { return *m_Window; }
+
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
@@ -38,6 +41,10 @@ namespace PF
 		bool m_Running = true;
 
 		LayerStack m_LayerStack;
+		ImGUI::ImGuiLayer* m_ImGuiLayer;
+
+	private:
+		static Application* s_Instance;
 	};
 
 	Application* CreateApplication();

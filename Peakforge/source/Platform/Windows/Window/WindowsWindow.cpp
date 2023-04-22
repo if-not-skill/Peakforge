@@ -126,17 +126,17 @@ namespace PF
 
 	void WindowsWindow::OnWindowSize(WPARAM wparam, LPARAM lparam)
 	{
-		
-
 		UINT width = LOWORD(lparam);
 		UINT height = HIWORD(lparam);
 
-		WindowResizeEvent event(width, height);
-		m_Data.EventCallback(event);
+		OnWindowSize((LONG)width, (LONG)height);
 	}
 
 	void WindowsWindow::OnWindowSize(LONG width, LONG height)
 	{
+		m_Data.Width = width;
+		m_Data.Height = height;
+
 		WindowResizeEvent event(width, height);
 		m_Data.EventCallback(event);
 	}

@@ -14,6 +14,8 @@ namespace PF::Render
 		static void OnRender();
 		static void OnSuspend();
 		static void OnResume();
+
+		static void* GetNativeRenderRef();
 	};
 
 }

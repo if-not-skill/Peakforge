@@ -31,6 +31,11 @@ namespace PF::Render
 			s_RenderAPI->Resume();
 		}
 
+		static void* GetNativeRenderRef()
+		{
+			return s_RenderAPI;
+		}
+
 	private:
 		static RenderAPI* s_RenderAPI;
 

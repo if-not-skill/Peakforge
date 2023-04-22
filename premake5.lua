@@ -17,7 +17,7 @@ IncludeDir["glm"] = "Peakforge/vendor/glm"
 
 startproject "Sandbox"
 
-include "Peakforge/vendor/ImGui"
+include "Peakforge/vendor/imgui"
 
 project "Peakforge"
     location "Peakforge"
@@ -116,13 +116,14 @@ project "Sandbox"
     includedirs
     {
         "Peakforge/vendor/spdlog/include",
+        "Peakforge/vendor",
         "Peakforge/source",
         "%{IncludeDir.glm}",
     }
 
     links
     {
-        "Peakforge"
+        "Peakforge",
     }
 
     filter "system:windows"

@@ -33,4 +33,9 @@ namespace PF::Render
 	{
 		RenderCommand::Resume();
 	}
+
+	void* Renderer::GetNativeRenderRef()
+	{
+		return RenderCommand::GetNativeRenderRef();
+	}
 }

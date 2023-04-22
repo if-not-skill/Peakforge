@@ -1,24 +1,30 @@
 #include "pfpch.h"
 #include "Application.h"
 
-#include <utility>
-
 #include "Layer.h"
 #include "Peakforge/Renderer/Renderer.h"
 
 namespace PF
 {
 #define BIND_EVENT_FN(x, y) std::bind(x, y, std::placeholders::_1)
+	
+	Application* Application::s_Instance = nullptr;
 
 	Application::Application(const std::string& title)
 	{
+		PF_CORE_ASSERT(!s_Instance, "Application already exists!");
+		s_Instance = this;
+
 		WindowProps props;
 		props.Title = title;
 		
-			m_Window = std::unique_ptr<Window>(Window::Create(props));
+		m_Window = std::unique_ptr<Window>(Window::Create(props));
 		m_Window->SetEventCallback(BIND_EVENT_FN(&Application::OnEvent, this));
 
 		Render::Renderer::Init(m_Window->GetNativeWindow());
+		
+		m_ImGuiLayer = new ImGUI::ImGuiLayer();
+		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
@@ -29,12 +35,15 @@ namespace PF
 	{
 		while (m_Running)
 		{
-			for(const auto layer : m_LayerStack)
-			{
-				layer->OnUpdate();
-			}
-
 			m_Window->OnUpdate();
+
+			for(const auto layer : m_LayerStack)
+				layer->OnUpdate();
+
+			m_ImGuiLayer->Begin();
+			for (const auto layer : m_LayerStack)
+				layer->OnImGuiRender();
+			m_ImGuiLayer->End();
 		}
 	}
 
@@ -61,11 +70,13 @@ namespace PF
 	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
+		layer->OnAttach();
 	}
 
 	void Application::PushOverlay(Layer* overlay)
 	{
 		m_LayerStack.PushOverlay(overlay);
+		overlay->OnAttach();
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e)
