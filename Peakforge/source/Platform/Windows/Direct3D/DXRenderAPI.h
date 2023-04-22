@@ -19,7 +19,8 @@ namespace PF::Render::DX
 
 		// Inherited via RenderAPI
 		bool Init(void* windowRef) override;
-		void Render() override;
+		void Clear() override;
+		void SwapChain() override;
 
 		void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 
@@ -30,9 +31,6 @@ namespace PF::Render::DX
 		inline ID3D11DeviceContext* GetD3DContext() const { return m_D3DContext.Get(); }
 
 	private:
-		void Clear();
-		void Present();
-
 		void CreateDevice();
 		void CreateResources();
 

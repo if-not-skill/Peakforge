@@ -37,13 +37,17 @@ namespace PF
 		{
 			m_Window->OnUpdate();
 
-			for(const auto layer : m_LayerStack)
+			Render::Renderer::OnClear();
+
+			for(auto layer : m_LayerStack)
 				layer->OnUpdate();
 
 			m_ImGuiLayer->Begin();
-			for (const auto layer : m_LayerStack)
+			for (auto layer : m_LayerStack)
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
+
+			Render::Renderer::OnSwapChain();
 		}
 	}
 
@@ -57,7 +61,6 @@ namespace PF
 		dispatcher.Dispatch<AppDeactivateEvent>(BIND_EVENT_FN(&Application::OnAppDeactivate, this));
 		dispatcher.Dispatch<AppSuspendingEvent>(BIND_EVENT_FN(&Application::OnAppSuspending, this));
 		dispatcher.Dispatch<AppResumingEvent>(BIND_EVENT_FN(&Application::OnAppResuming, this));
-		dispatcher.Dispatch<AppRenderEvent>(BIND_EVENT_FN(&Application::OnAppRender, this));
 
 		for(auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
 		{
@@ -111,11 +114,6 @@ namespace PF
 	bool Application::OnAppResuming(AppResumingEvent& e)
 	{
 		Render::Renderer::OnResume();
-		return false;
-	}
-	bool Application::OnAppRender(AppRenderEvent& e)
-	{
-		Render::Renderer::OnRender();
 		return false;
 	}
 }

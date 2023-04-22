@@ -9,7 +9,8 @@
 
 #define CLASS_NAME L"ApplicationWindowClass"
 
-#define IDI_ICON1 101
+// Forward declare message handler from imgui_impl_win32.cpp
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace PF 
 {
@@ -37,14 +38,10 @@ namespace PF
 	void WindowsWindow::OnUpdate()
 	{
 		MSG msg = {};
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) 
+		if (PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}
-		else 
-		{
-			OnAppRender();
 		}
 	}
 
@@ -63,7 +60,7 @@ namespace PF
 		m_Data.Height = props.Height;
 
 		#ifdef UNICODE
-		std::wstring stemp = StrToWStr(props.Title);
+		const std::wstring stemp = StrToWStr(props.Title);
 		LPCWSTR title = stemp.c_str();
 		#else
 		LPCWSTR title = props.Title.c_str();
@@ -78,36 +75,34 @@ namespace PF
 			LR_LOADFROMFILE
 		);
 
-		WNDCLASSEX wc;
-		wc.cbClsExtra = NULL;
-		wc.cbSize = sizeof(WNDCLASSEX);
-		wc.cbWndExtra = NULL;
-		wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-		wc.hInstance = nullptr;
-		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wc.hIcon = (HICON)hIcon;
-		wc.hIconSm = (HICON)hIcon;
-		wc.lpszClassName = CLASS_NAME;
-		wc.lpszMenuName = L"";
-		wc.style = CS_DBLCLKS;
-		wc.lpfnWndProc = &WindowProc;
 
+		const WNDCLASSEXW wc = 
+		{
+			sizeof(wc),
+			CS_CLASSDC,
+			& WindowProc,
+			0L,
+			0L,
+			GetModuleHandle(nullptr),
+			static_cast<HICON>(hIcon),
+			nullptr,
+			nullptr,
+			nullptr,
+			CLASS_NAME,
+			nullptr
+		};
 
-		if (!RegisterClassEx(&wc)) return false;
+		if (!RegisterClassExW(&wc)) return false;
 
-		m_Hwnd = CreateWindowEx(
-			0,						// Optional window styles
-			CLASS_NAME,				// Window class
-			title,					// Window text
-			WS_OVERLAPPEDWINDOW,	// Window style
-
-			// Size and position
-			CW_USEDEFAULT, CW_USEDEFAULT, props.Width, props.Height,
-			
-			NULL, // Parent window 
-			NULL, // Menu
-			NULL, // Instance handle
-			NULL // Additional application data
+		m_Hwnd = ::CreateWindowW
+		(
+			wc.lpszClassName, 
+			title, 
+			WS_OVERLAPPEDWINDOW, 
+			100, 100, props.Width, props.Height,
+			nullptr, nullptr, 
+			wc.hInstance, 
+			nullptr
 		);
 
 		if (!m_Hwnd) return false;
@@ -156,12 +151,6 @@ namespace PF
 	void WindowsWindow::OnAppDeactivate()
 	{
 		AppDeactivateEvent event;
-		m_Data.EventCallback(event);
-	}
-
-	void WindowsWindow::OnAppRender()
-	{
-		AppRenderEvent event;
 		m_Data.EventCallback(event);
 	}
 
@@ -331,9 +320,12 @@ namespace PF
 
 		return keycode;
 	}
-
+	
 	LRESULT WindowsWindow::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
+		if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam))
+			return true;
+
 		static bool s_InSizeMove = false;
 		static bool s_InSuspend = false;
 		static bool s_Minimized = false;
@@ -345,21 +337,6 @@ namespace PF
 
 		switch (msg)
 		{
-		case WM_PAINT:
-		{
-			if (s_InSizeMove)
-			{
-				s_Instance->OnAppRender();
-			}
-			else
-			{
-				PAINTSTRUCT ps;
-				std::ignore = BeginPaint(hwnd, &ps);
-				EndPaint(hwnd, &ps);
-			}
-			break;
-		}
-
 #pragma region MOUSE
 		case WM_LBUTTONUP:
 		case WM_LBUTTONDOWN:

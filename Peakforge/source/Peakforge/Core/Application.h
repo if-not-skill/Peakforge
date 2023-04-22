@@ -33,7 +33,6 @@ namespace PF
 		bool OnAppDeactivate(AppDeactivateEvent& e);
 		bool OnAppSuspending(AppSuspendingEvent& e);
 		bool OnAppResuming(AppResumingEvent& e);
-		bool OnAppRender(AppRenderEvent& e);
 
 	private:
 		std::unique_ptr<Window> m_Window;

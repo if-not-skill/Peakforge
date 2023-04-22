@@ -9,9 +9,11 @@ namespace PF::Render
 		static void Init(void* windowRef);
 		static void Shutdown();
 
+		static void OnClear();
+		static void OnSwapChain();
+
 		static void OnWindowResize(int width, int height);
 
-		static void OnRender();
 		static void OnSuspend();
 		static void OnResume();
 

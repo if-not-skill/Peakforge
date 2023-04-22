@@ -11,9 +11,14 @@ namespace PF::Render
 			s_RenderAPI->Init(windowRef);
 		}
 
-		static void Render()
+		static void Clear()
 		{
-			s_RenderAPI->Render();
+			s_RenderAPI->Clear();
+		}
+
+		static void SwapChain()
+		{
+			s_RenderAPI->SwapChain();
 		}
 
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

@@ -38,7 +38,6 @@ namespace PF
 		// App Handlers
 		void OnAppActivate();
 		void OnAppDeactivate();
-		void OnAppRender();
 		void OnAppSuspending();
 		void OnAppResuming();
 

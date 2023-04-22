@@ -36,15 +36,6 @@ namespace PF::Render::DX
 		return true;
 	}
 
-	void Direct3DRendererAPI::Render()
-	{
-		Clear();
-
-		// TODO: Add your rendering code here.
-
-		Present();
-	}
-
 	void Direct3DRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		m_OutputWidth = std::max<uint32_t>(width, 1);
@@ -76,7 +67,7 @@ namespace PF::Render::DX
 		m_D3DContext->RSSetViewports(1, &viewport);
 	}
 
-	void Direct3DRendererAPI::Present()
+	void Direct3DRendererAPI::SwapChain()
 	{
 		// The first argument instructs DXGI to block until VSync, putting the application
 		// to sleep until the next VSync. This ensures we don't waste any cycles rendering
