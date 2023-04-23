@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderAPI.h"
+#include "GraphicsContext.h"
 
 namespace PF::Render
 {
@@ -8,41 +8,41 @@ namespace PF::Render
 	public:
 		static void Init(void* windowRef)
 		{
-			s_RenderAPI->Init(windowRef);
+			s_Context->Init(windowRef);
 		}
 
 		static void Clear()
 		{
-			s_RenderAPI->Clear();
+			s_Context->Clear();
 		}
 
 		static void SwapChain()
 		{
-			s_RenderAPI->SwapChain();
+			s_Context->SwapChain();
 		}
 
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 		{
-			s_RenderAPI->SetViewport(x, y, width, height);
+			s_Context->SetViewport(x, y, width, height);
 		}
 
 		static void Suspend()
 		{
-			s_RenderAPI->Suspend();
+			s_Context->Suspend();
 		}
 
 		static void Resume()
 		{
-			s_RenderAPI->Resume();
+			s_Context->Resume();
 		}
 
 		static void* GetNativeRenderRef()
 		{
-			return s_RenderAPI;
+			return s_Context;
 		}
 
 	private:
-		static RenderAPI* s_RenderAPI;
+		static GraphicsContext* s_Context;
 
 	};
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Peakforge/Renderer/RenderAPI.h"
+#include "Peakforge/Renderer/GraphicsContext.h"
 
 #include <d3d11.h>
 #include <d3d11_1.h>
@@ -11,13 +11,13 @@ using Microsoft::WRL::ComPtr;
 
 namespace PF::Render::DX
 {
-	class Direct3DRendererAPI final : public RenderAPI
+	class DX11Context final : public GraphicsContext
 	{
 	public:
-		Direct3DRendererAPI();
-		~Direct3DRendererAPI() override;
+		DX11Context();
+		~DX11Context() override;
 
-		// Inherited via RenderAPI
+		// Inherited via GraphicsContext
 		bool Init(void* windowRef) override;
 		void Clear() override;
 		void SwapChain() override;
@@ -51,7 +51,6 @@ namespace PF::Render::DX
 		ComPtr<ID3D11RenderTargetView>  m_RenderTargetView;
 		ComPtr<ID3D11DepthStencilView>  m_DepthStencilView;
 
-		ComPtr<IDXGIAdapter>			m_Adapter;
-
+		ComPtr<IDXGIAdapter2>			m_Adapter;
 	};
 }

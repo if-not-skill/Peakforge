@@ -3,5 +3,5 @@
 
 namespace PF::Render
 {
-	RenderAPI* RenderCommand::s_RenderAPI = RenderAPI::Create();
+	GraphicsContext* RenderCommand::s_Context = GraphicsContext::Create();
 }

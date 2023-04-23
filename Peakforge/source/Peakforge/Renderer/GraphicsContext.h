@@ -2,16 +2,16 @@
 
 namespace PF::Render
 {
-	class RenderAPI 
+	class GraphicsContext 
 	{
 		enum class API
 		{
-			None = 0, DirectX = 1
+			None = 0, DirectX11 = 1
 		};
 
 	public:
-		RenderAPI() = default;
-		virtual ~RenderAPI() = default;
+		GraphicsContext() = default;
+		virtual ~GraphicsContext() = default;
 
 		virtual bool Init(void* windowRef) = 0;
 		virtual void Clear() = 0;
@@ -23,7 +23,7 @@ namespace PF::Render
 		virtual void Resume() = 0;
 
 		static API GetAPI() { return s_API; }
-		static RenderAPI* Create();
+		static GraphicsContext* Create();
 
 	private:
 		static API s_API;

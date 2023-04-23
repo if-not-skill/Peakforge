@@ -1,5 +1,5 @@
 #include "pfpch.h"
-#include "DXRenderAPI.h"
+#include "DX11Context.h"
 
 #include "Platform/Windows/Window/WindowsWindow.h"
 
@@ -7,7 +7,12 @@
 
 namespace PF::Render::DX
 {
-	Direct3DRendererAPI::Direct3DRendererAPI() :
+	struct SimpleVertex
+	{
+		DirectX::XMFLOAT3 Pos;
+	};
+
+	DX11Context::DX11Context() :
 		m_Window(nullptr),
 		m_OutputWidth(800),
 		m_OutputHeight(600),
@@ -15,10 +20,10 @@ namespace PF::Render::DX
 	{
 	}
 
-	Direct3DRendererAPI::~Direct3DRendererAPI()
+	DX11Context::~DX11Context()
 	= default;
 
-	bool Direct3DRendererAPI::Init(void* windowRef)
+	bool DX11Context::Init(void* windowRef)
 	{
 		const auto windowsWindow = static_cast<WindowsWindow*>(windowRef);
 
@@ -36,7 +41,7 @@ namespace PF::Render::DX
 		return true;
 	}
 
-	void Direct3DRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void DX11Context::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		m_OutputWidth = std::max<uint32_t>(width, 1);
 		m_OutputHeight = std::max<uint32_t>(height, 1);
@@ -44,17 +49,17 @@ namespace PF::Render::DX
 		CreateResources();
 	}
 
-	void Direct3DRendererAPI::Suspend()
+	void DX11Context::Suspend()
 	{
 		LOG_CORE_WARN("Suspend");
 	}
 
-	void Direct3DRendererAPI::Resume()
+	void DX11Context::Resume()
 	{
 		LOG_CORE_WARN("Resume");
 	}
 
-	void Direct3DRendererAPI::Clear()
+	void DX11Context::Clear()
 	{
 		// Clear the views.
 		m_D3DContext->ClearRenderTargetView(m_RenderTargetView.Get(), DirectX::Colors::CornflowerBlue);
@@ -67,7 +72,7 @@ namespace PF::Render::DX
 		m_D3DContext->RSSetViewports(1, &viewport);
 	}
 
-	void Direct3DRendererAPI::SwapChain()
+	void DX11Context::SwapChain()
 	{
 		// The first argument instructs DXGI to block until VSync, putting the application
 		// to sleep until the next VSync. This ensures we don't waste any cycles rendering
@@ -85,7 +90,7 @@ namespace PF::Render::DX
 		}
 	}
 
-	void Direct3DRendererAPI::CreateDevice()
+	void DX11Context::CreateDevice()
 	{
 		UINT creationFlags = 0;
 
@@ -148,7 +153,7 @@ namespace PF::Render::DX
 		ThrowIfFailed(context.As(&m_D3DContext));
 	}
 
-	void Direct3DRendererAPI::CreateResources()
+	void DX11Context::CreateResources()
 	{
 		// Clear the previous window size specific context.
 		m_D3DContext->OMSetRenderTargets(0, nullptr, nullptr);
@@ -241,7 +246,7 @@ namespace PF::Render::DX
 		// TODO: Initialize windows-size dependent objects here.
 	}
 
-	void Direct3DRendererAPI::OnDeviceLost()
+	void DX11Context::OnDeviceLost()
 	{
 		m_DepthStencilView.Reset();
 		m_RenderTargetView.Reset();
@@ -255,14 +260,16 @@ namespace PF::Render::DX
 		CreateResources();
 	}
 
-	void Direct3DRendererAPI::ShowAdapterInfo() const
+	void DX11Context::ShowAdapterInfo() const
 	{
-		auto adapterDescription = DXGI_ADAPTER_DESC();
-		m_Adapter->GetDesc(&adapterDescription);
-
+		auto adapterDescription = DXGI_ADAPTER_DESC2();
+		m_Adapter->GetDesc2(&adapterDescription);
+		
 		auto temp = std::wstring(adapterDescription.Description);
 		std::string videoAdapterName(temp.begin(), temp.end());
-
-		LOG_CORE_INFO("DirectX Initialized using {0}", videoAdapterName);
+		
+		LOG_CORE_INFO("DirectX11 Initialized:");
+		LOG_CORE_INFO("\tRenderer: {0}", videoAdapterName);
+		LOG_CORE_INFO("\tVideo Memory: {0} MB", adapterDescription.DedicatedVideoMemory / (1024 * 1024));
 	}
 }

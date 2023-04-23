@@ -24,7 +24,7 @@ namespace PF::Render::DX
     {
         if (FAILED(hr))
         {
-            // Set a breakpoint on this line to catch DirectX API errors
+            // Set a breakpoint on this line to catch DirectX11 API errors
             throw std::exception();
         }
     }

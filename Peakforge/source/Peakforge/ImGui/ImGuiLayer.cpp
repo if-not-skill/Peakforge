@@ -11,7 +11,7 @@
 #endif
 
 #include "Peakforge/Renderer/Renderer.h"
-#include "Platform/Windows/Direct3D/DXRenderAPI.h"
+#include "Platform/Windows/Direct3D/DX11Context.h"
 #include <backends/imgui_impl_dx11.h>
 
 namespace PF::ImGUI
@@ -68,7 +68,7 @@ namespace PF::ImGUI
 		}
 #endif
 
-		const auto render = static_cast<Render::DX::Direct3DRendererAPI*>(Render::Renderer::GetNativeRenderRef());
+		const auto render = static_cast<Render::DX::DX11Context*>(Render::Renderer::GetNativeRenderRef());
 		success = ImGui_ImplDX11_Init
 		(
 			render->GetD3DDevice(), 

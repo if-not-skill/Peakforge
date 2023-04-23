@@ -1,15 +1,15 @@
 #include "pfpch.h"
-#include "RenderAPI.h"
+#include "GraphicsContext.h"
 
-#include "Platform/Windows/Direct3D/DXRenderAPI.h"
+#include "Platform/Windows/Direct3D/DX11Context.h"
 
 namespace PF::Render
 {
 #ifdef PF_PLATFORM_WINDOWS
-	RenderAPI::API RenderAPI::s_API = API::DirectX;
+	GraphicsContext::API GraphicsContext::s_API = API::DirectX11;
 #endif
 
-	RenderAPI* RenderAPI::Create()
+	GraphicsContext* GraphicsContext::Create()
 	{
 		switch (s_API)
 		{
@@ -18,9 +18,9 @@ namespace PF::Render
 			PF_CORE_ASSERT(false, "RernderAPI::None is currently not supported!");
 			return nullptr;
 		}
-		case API::DirectX:
+		case API::DirectX11:
 		{
-			return new DX::Direct3DRendererAPI();
+			return new DX::DX11Context();
 		}
 		}
 
