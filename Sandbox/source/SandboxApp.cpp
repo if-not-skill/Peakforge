@@ -9,7 +9,8 @@ public:
 
 	void OnUpdate() override
 	{
-		// LOG_TRACE("ExampleLayer: OnUpdate");
+	// 	auto[x, y] = PF::Input::Input::GetMousePosition();
+	// 	LOG_TRACE("MousePos: {0}, {1}", x, y);
 	}
 };
 

@@ -2,6 +2,7 @@
 
 // =======Core================================
 #include "Peakforge/Core/Log.h"
+#include "Peakforge/Input/Input.h"
 #include "Peakforge/Core/Assert.h"
 #include "Peakforge/Core/Layer.h"
 #include "Peakforge/Core/Application.h"
