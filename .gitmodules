@@ -7,3 +7,6 @@
 [submodule "Peakforge/vendor/glm"]
 	path = Peakforge/vendor/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "Peakforge/vendor/DirectXTK"]
+	path = Peakforge/vendor/DirectXTK
+	url = https://github.com/if-not-skill/DirectXTK.git

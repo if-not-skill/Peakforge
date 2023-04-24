@@ -58,7 +58,8 @@ project "Peakforge"
         systemversion "latest"
 
         links
-        {    
+        {   
+            "DirectXTK.lib",
             "d3d11.lib",
             "dxgi.lib",
             "dxguid.lib",
@@ -70,6 +71,11 @@ project "Peakforge"
             "shell32.lib",
             "ole32.lib",
             "oleaut32.lib"
+        }
+
+        includedirs
+        {
+            "%{prj.name}/vendor/DirectXTK/Inc",
         }
 
         defines
@@ -84,14 +90,29 @@ project "Peakforge"
             "PF_ENABLE_ASSERTS"
         }
         symbols "on"
+
+        libdirs 
+        { 
+            "%{prj.name}/vendor/DirectXTK/Bin/Windows10_2022/x64/Debug",
+        }
         
     filter "configurations:Release"
         defines "PF_RELEASE"
         optimize "on"
+
+        libdirs 
+        { 
+            "%{prj.name}/vendor/DirectXTK/Bin/Windows10_2022/x64/Release",
+        }
     
     filter "configurations:Shipping"
         defines "PF_SHIPPING"
         optimize "on"
+
+        libdirs 
+        { 
+            "%{prj.name}/vendor/DirectXTK/Bin/Windows10_2022/x64/Release",
+        }
 
 
 project "Sandbox"
