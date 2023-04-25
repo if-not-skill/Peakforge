@@ -6,6 +6,7 @@
 #include "Peakforge/Events/ApplicationEvent.h"
 
 #include <windowsx.h>
+#include <objbase.h>
 
 #define CLASS_NAME L"ApplicationWindowClass"
 
@@ -57,6 +58,9 @@ namespace PF
 
 	bool WindowsWindow::Init(const WindowProps& props)
 	{
+		HRESULT hr = CoInitialize(NULL);
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Failed CoInitialized");
+
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
@@ -76,7 +80,6 @@ namespace PF
 			NULL, NULL,
 			LR_LOADFROMFILE
 		);
-
 
 		wc = 
 		{

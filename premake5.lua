@@ -101,7 +101,8 @@ project "Peakforge"
 
         postbuildcommands
         {
-            ("{COPY} %{cfg.buildtarget.directory}**.cso ../bin/" .. outputdir .. "/Sandbox/Engine/Shaders")
+            ("{COPY} %{cfg.buildtarget.directory}**.cso ../bin/" .. outputdir .. "/Sandbox/Engine/Shaders"),
+            ("{COPYDIR} %{prj.location}content %{cfg.buildtarget.directory}../Sandbox/Engine/")
         }
 
     filter "configurations:Debug"

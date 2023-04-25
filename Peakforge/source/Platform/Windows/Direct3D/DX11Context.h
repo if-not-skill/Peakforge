@@ -73,14 +73,18 @@ namespace PF::Render::DX
 
 		void InitializeScene();
 		void InitializeRasterizer();
+		void InitializeSampler();
+		void InitializeTexture();
 
 	private:
-		VertexShader					m_VertexShader;
-		PixelShader						m_PixelShader;
+		VertexShader						m_VertexShader;
+		PixelShader							m_PixelShader;
 
-		ComPtr<ID3D11Buffer>			m_VertexBuffer;
-		ComPtr<ID3D11Buffer>			m_VertexBuffer2;
-		
-		ComPtr<ID3D11RasterizerState>	m_RasterizerState;
+		ComPtr<ID3D11Buffer>				m_VertexBuffer;
+	
+		ComPtr<ID3D11RasterizerState>		m_RasterizerState;
+
+		ComPtr<ID3D11SamplerState>			m_SamplerState;
+		ComPtr<ID3D11ShaderResourceView>	m_BaseTexture;
 	};
 }

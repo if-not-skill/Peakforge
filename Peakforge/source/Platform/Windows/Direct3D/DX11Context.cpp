@@ -4,9 +4,12 @@
 #include "Platform/Windows/Window/WindowsWindow.h"
 
 #include <DirectXColors.h>
+#include <WICTextureLoader.h>
 
 #define SAMPLE_VERTEX_SHADER L"Engine/Shaders/VertexShader.cso"
 #define SAMPLE_PIXEL_SHADER	 L"Engine/Shaders/PixelShader.cso"
+
+#define SAMPLE_TEXTURE L"Engine/Textures/T_Sample.png"
 
 namespace PF::Render::DX
 {
@@ -46,6 +49,9 @@ namespace PF::Render::DX
 		InitializeShaders();
 		InitializeScene();
 		InitializeRasterizer();
+
+		InitializeSampler();
+		InitializeTexture();
 
 		LOG_CORE_INFO("DirectX Initialized");
 		return true;
@@ -100,6 +106,7 @@ namespace PF::Render::DX
 		m_D3DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_D3DContext->RSSetState(m_RasterizerState.Get());
 		m_D3DContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
+		m_D3DContext->PSSetSamplers(0, 1, m_SamplerState.GetAddressOf());
 
 		m_D3DContext->VSSetShader(m_VertexShader.GetShader(), NULL, 0);
 		m_D3DContext->PSSetShader(m_PixelShader.GetShader(), NULL, 0);
@@ -107,11 +114,9 @@ namespace PF::Render::DX
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 
-		m_D3DContext->IASetVertexBuffers(0, 1, m_VertexBuffer2.GetAddressOf(), &stride, &offset);
-		m_D3DContext->Draw(3, 0);
-
+		m_D3DContext->PSSetShaderResources(0, 1, m_BaseTexture.GetAddressOf());
 		m_D3DContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &stride, &offset);
-		m_D3DContext->Draw(3, 0);
+		m_D3DContext->Draw(6, 0);
 	}
 
 	void DX11Context::SwapChain()
@@ -358,7 +363,8 @@ namespace PF::Render::DX
 		D3D11_INPUT_ELEMENT_DESC layout[] =
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+			//{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
 
 		m_VertexShader.Initialize
@@ -380,9 +386,13 @@ namespace PF::Render::DX
 		// first triangle
 		Vertex vertexes1[] =
 		{
-			Vertex(-.5f, 0.f, 1.f, 1.f, 0.f, 0.f),
-			Vertex(0.f, .5f, 1.f, 1.f, 0.f, 0.f),
-			Vertex(.5f, 0.f, 1.f, 1.f, 0.f, 0.f),
+			Vertex(-0.5f, -0.5f, 1.0f, 0.0f, 1.0f),
+			Vertex(-0.5f, 0.5f, 1.0f, 0.0f, 0.0f),
+			Vertex(0.5f, 0.5f, 1.0f, 1.0f, 0.0f),
+
+			Vertex(-0.5f, -0.5f, 1.0f, 0.0f, 1.0f),
+			Vertex(0.5f, 0.5f, 1.0f, 1.0f, 0.0f),
+			Vertex(0.5f, -0.5f, 1.0f, 1.0f, 1.0f),
 		};
 
 		D3D11_BUFFER_DESC desc;
@@ -400,29 +410,6 @@ namespace PF::Render::DX
 
 		HRESULT hr = m_D3DDevice->CreateBuffer(&desc, &vertexBufferData, m_VertexBuffer.GetAddressOf());
 		PF_CORE_ASSERT(SUCCEEDED(hr), "Error CreateBuffer");
-		
-		// second triangle
-		Vertex vertexes2[] =
-		{
-			Vertex(-.25f, 0.f, 0.f, 0.f, 1.f, 0.f),
-			Vertex(0.f, .25f, 0.f, 0.f, 1.f, 0.f),
-			Vertex(.25f, 0.f, 0.f, 0.f, 1.f, 0.f),
-		};
-
-		ZeroMemory(&desc, sizeof(desc));
-
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertexes2);
-		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		desc.CPUAccessFlags = 0;
-		desc.MiscFlags = 0;
-
-		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
-		vertexBufferData.pSysMem = vertexes2;
-
-		hr = m_D3DDevice->CreateBuffer(&desc, &vertexBufferData, m_VertexBuffer2.GetAddressOf());
-		PF_CORE_ASSERT(SUCCEEDED(hr), "Error CreateBuffer");
-		
 		LOG_CORE_TRACE("Scene Initialized");
 	}
 
@@ -437,5 +424,28 @@ namespace PF::Render::DX
 		const HRESULT hr = m_D3DDevice->CreateRasterizerState(&desc, m_RasterizerState.GetAddressOf());
 		PF_CORE_ASSERT(SUCCEEDED(hr), "Failed CreateRasterizerState");
 		LOG_CORE_TRACE("Rasterizer Initialized");
+	}
+
+	void DX11Context::InitializeSampler()
+	{
+		D3D11_SAMPLER_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		desc.MinLOD = 0;
+		desc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		HRESULT hr = m_D3DDevice->CreateSamplerState(&desc, m_SamplerState.GetAddressOf());
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Failed CreateSamplerState");
+		LOG_CORE_TRACE("Sampler Initialized");
+	}
+
+	void DX11Context::InitializeTexture()
+	{
+		const HRESULT hr = DirectX::CreateWICTextureFromFile(m_D3DDevice.Get(), SAMPLE_TEXTURE, nullptr, m_BaseTexture.GetAddressOf());
+		if (FAILED(hr)) LOG_CORE_WARN("Failed CreateWICTextureFromFile");
 	}
 }
