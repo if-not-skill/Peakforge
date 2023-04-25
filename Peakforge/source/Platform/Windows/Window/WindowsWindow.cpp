@@ -94,12 +94,25 @@ namespace PF
 
 		if (!RegisterClassExW(&wc)) return false;
 
+		int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - props.Width / 2;
+		int centerScreenY = GetSystemMetrics(SM_CYSCREEN) / 2 - props.Height / 2;
+
+		auto windowStyles = WS_OVERLAPPEDWINDOW;
+
+		RECT wr;
+		wr.left = centerScreenX;
+		wr.top = centerScreenY;
+		wr.right = wr.left + props.Width;
+		wr.bottom = wr.top + props.Height;
+		AdjustWindowRect(&wr, windowStyles, FALSE);
+
 		m_Hwnd = ::CreateWindowW
 		(
-			wc.lpszClassName, 
-			title, 
-			WS_OVERLAPPEDWINDOW, 
-			100, 100, props.Width, props.Height,
+			wc.lpszClassName,
+			title,
+			windowStyles,
+			wr.left, wr.top, 
+			wr.right - wr.left, wr.bottom - wr.top,
 			nullptr, nullptr, 
 			wc.hInstance, 
 			nullptr

@@ -17,6 +17,8 @@ namespace PF
 
 		WindowProps props;
 		props.Title = title;
+		props.Width = 800;
+		props.Height = 600;
 		
 		m_Window = std::unique_ptr<Window>(Window::Create(props));
 		m_Window->SetEventCallback(BIND_EVENT_FN(&Application::OnEvent, this));
