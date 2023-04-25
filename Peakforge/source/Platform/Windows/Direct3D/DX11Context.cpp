@@ -6,6 +6,7 @@
 #include <DirectXColors.h>
 
 #define SAMPLE_VERTEX_SHADER L"Engine/Shaders/VertexShader.cso"
+#define SAMPLE_PIXEL_SHADER	 L"Engine/Shaders/PixelShader.cso"
 
 namespace PF::Render::DX
 {
@@ -280,11 +281,13 @@ namespace PF::Render::DX
 	void DX11Context::InitializeShaders()
 	{
 		LOG_CORE_INFO("Shaders Initialization:");
-		const bool success = m_VertexShader.Initialize(m_D3DDevice, SAMPLE_VERTEX_SHADER);
 
-		PF_CORE_ASSERT(success, "\tError initialize vertex shader");
-		LOG_CORE_INFO("\tVertexShader Initialized");
+		InitializeVertexShader();
+		initializePixelShader();
+	}
 
+	void DX11Context::InitializeVertexShader()
+	{
 		D3D11_INPUT_ELEMENT_DESC layout[] =
 		{
 			{
@@ -298,14 +301,17 @@ namespace PF::Render::DX
 			}
 		};
 
-		const HRESULT hr = m_D3DDevice->CreateInputLayout
+		m_VertexShader.Initialize
 		(
+			m_D3DDevice,
+			SAMPLE_VERTEX_SHADER,
 			layout,
-			ARRAYSIZE(layout),
-			m_VertexShader.GetShaderBuffer()->GetBufferPointer(),
-			m_VertexShader.GetShaderBuffer()->GetBufferSize(),
-			m_InputLayout.GetAddressOf()
+			ARRAYSIZE(layout)
 		);
-		ThrowIfFailed(hr);
+	}
+
+	void DX11Context::initializePixelShader()
+	{
+		m_PixelShader.Initialize(m_D3DDevice, SAMPLE_PIXEL_SHADER);
 	}
 }

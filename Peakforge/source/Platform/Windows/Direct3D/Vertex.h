@@ -2,10 +2,13 @@
 
 #include <DirectXMath.h>
 
-struct Vertex
+namespace PF::Render::DX
 {
-	Vertex() {}
-	Vertex(float x, float y) : pos(x, y) {}
+	struct Vertex
+	{
+		Vertex() = default;
+		Vertex(float x, float y) : pos(x, y) {}
 
-	DirectX::XMFLOAT2 pos;
-};
+		DirectX::XMFLOAT2 pos;
+	};
+}

@@ -58,9 +58,11 @@ namespace PF::Render::DX
 
 	private:
 		void InitializeShaders();
+		void InitializeVertexShader();
+		void initializePixelShader();
 
 	private:
-		ComPtr<ID3D11InputLayout>		m_InputLayout;
 		VertexShader					m_VertexShader;
+		PixelShader						m_PixelShader;
 	};
 }
