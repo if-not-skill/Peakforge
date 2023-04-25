@@ -24,6 +24,7 @@ namespace PF::Render::DX
 		// Inherited via GraphicsContext
 		bool Init(void* windowRef) override;
 		void Clear() override;
+		void Draw() override;
 		void SwapChain() override;
 
 		void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
@@ -37,6 +38,8 @@ namespace PF::Render::DX
 	private:
 		void CreateDevice();
 		void CreateResources();
+
+		void CreateDepthStencilState();
 
 		void OnDeviceLost();
 
@@ -53,7 +56,10 @@ namespace PF::Render::DX
 		
 		ComPtr<IDXGISwapChain1>         m_SwapChain;
 		ComPtr<ID3D11RenderTargetView>  m_RenderTargetView;
+
 		ComPtr<ID3D11DepthStencilView>  m_DepthStencilView;
+		ComPtr<ID3D11Texture2D>			m_DepthStencilBuffer;
+		ComPtr<ID3D11DepthStencilState> m_DepthStencilState;
 
 		ComPtr<IDXGIAdapter2>			m_Adapter;
 
@@ -63,11 +69,15 @@ namespace PF::Render::DX
 		void InitializePixelShader();
 
 		void InitializeScene();
+		void InitializeRasterizer();
 
 	private:
 		VertexShader					m_VertexShader;
 		PixelShader						m_PixelShader;
 
 		ComPtr<ID3D11Buffer>			m_VertexBuffer;
+		ComPtr<ID3D11Buffer>			m_VertexBuffer2;
+		
+		ComPtr<ID3D11RasterizerState>	m_RasterizerState;
 	};
 }

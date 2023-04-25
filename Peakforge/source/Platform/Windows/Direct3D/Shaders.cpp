@@ -5,17 +5,12 @@ namespace PF::Render::DX
 {
 
 #pragma region VertexShader
-	VertexShader::VertexShader() :
-		m_Shader(nullptr),
-		m_ShaderBuffer(nullptr),
-		m_InputLayout(nullptr)
-	{
-	}
+	VertexShader::VertexShader() {}
 
 	void VertexShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device1>& device, std::wstring shaderPath, D3D11_INPUT_ELEMENT_DESC* inputDesc, UINT descSize)
 	{
 		HRESULT hr = D3DReadFileToBlob(shaderPath.c_str(), m_ShaderBuffer.GetAddressOf());
-		PF_CORE_ASSERT(SUCCEEDED(hr), "\tError: D3DReadFileToBlob");
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Error: D3DReadFileToBlob");
 
 		hr = device->CreateVertexShader
 		(
@@ -24,7 +19,7 @@ namespace PF::Render::DX
 			nullptr,
 			m_Shader.GetAddressOf()
 		);
-		PF_CORE_ASSERT(SUCCEEDED(hr), "\tError: CreateVertexShader");
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Error: CreateVertexShader");
 
 		hr = device->CreateInputLayout
 		(
@@ -34,17 +29,13 @@ namespace PF::Render::DX
 			m_ShaderBuffer->GetBufferSize(),
 			m_InputLayout.GetAddressOf()
 		);
-		PF_CORE_ASSERT(SUCCEEDED(hr), "\tError: CreateInputLayout");
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Error: CreateInputLayout");
 		LOG_CORE_TRACE("\tVertexShader Initialized");
 	}
 #pragma endregion
 
 #pragma region PixelShader
-	PixelShader::PixelShader() :
-		m_Shader(nullptr),
-		m_ShaderBuffer(nullptr)
-	{
-	}
+	PixelShader::PixelShader() {}
 
 	void PixelShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device1>& device, std::wstring shaderPath)
 	{

@@ -37,7 +37,9 @@ namespace PF
 		{
 			m_Window->OnUpdate();
 
-			Render::Renderer::OnClear();
+			Render::Renderer::Clear();
+
+			Render::Renderer::Draw();
 
 			for(auto layer : m_LayerStack)
 				layer->OnUpdate();
@@ -47,7 +49,7 @@ namespace PF
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
 
-			Render::Renderer::OnSwapChain();
+			Render::Renderer::SwapChain();
 		}
 	}
 

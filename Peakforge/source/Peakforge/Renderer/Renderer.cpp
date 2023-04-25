@@ -10,16 +10,21 @@ namespace PF::Render
 		RenderCommand::Init(windowRef);
 	}
 
+	void Renderer::Draw()
+	{
+		RenderCommand::Draw();
+	}
+
 	void Renderer::Shutdown()
 	{
 	}
 
-	void Renderer::OnClear()
+	void Renderer::Clear()
 	{
 		RenderCommand::Clear();
 	}
 
-	void Renderer::OnSwapChain()
+	void Renderer::SwapChain()
 	{
 		RenderCommand::SwapChain();
 	}

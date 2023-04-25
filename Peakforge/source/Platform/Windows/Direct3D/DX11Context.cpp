@@ -43,6 +43,7 @@ namespace PF::Render::DX
 
 		InitializeShaders();
 		InitializeScene();
+		InitializeRasterizer();
 
 		LOG_CORE_INFO("DirectX Initialized");
 		return true;
@@ -73,26 +74,36 @@ namespace PF::Render::DX
 		m_D3DContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 		m_D3DContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
+		
+		CreateDepthStencilState();
 
 		// Set the viewport.
 		D3D11_VIEWPORT viewport = { 0.0f, 0.0f, static_cast<float>(m_OutputWidth), static_cast<float>(m_OutputHeight), 0.f, 1.f };
 		m_D3DContext->RSSetViewports(1, &viewport);
 	}
 
-	void DX11Context::SwapChain()
+	void DX11Context::Draw()
 	{
 		m_D3DContext->IASetInputLayout(m_VertexShader.GetInputLayout());
 		m_D3DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_D3DContext->RSSetState(m_RasterizerState.Get());
+		m_D3DContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
 
 		m_D3DContext->VSSetShader(m_VertexShader.GetShader(), NULL, 0);
 		m_D3DContext->PSSetShader(m_PixelShader.GetShader(), NULL, 0);
 
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
-		m_D3DContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &stride, &offset);
 
+		m_D3DContext->IASetVertexBuffers(0, 1, m_VertexBuffer2.GetAddressOf(), &stride, &offset);
 		m_D3DContext->Draw(3, 0);
 
+		m_D3DContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &stride, &offset);
+		m_D3DContext->Draw(3, 0);
+	}
+
+	void DX11Context::SwapChain()
+	{
 		// The first argument instructs DXGI to block until VSync, putting the application
 		// to sleep until the next VSync. This ensures we don't waste any cycles rendering
 		// frames that will never be displayed to the screen.
@@ -223,6 +234,7 @@ namespace PF::Render::DX
 			DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 			swapChainDesc.Width = backBufferWidth;
 			swapChainDesc.Height = backBufferHeight;
+			swapChainDesc.Height = backBufferHeight;
 			swapChainDesc.Format = backBufferFormat;
 			swapChainDesc.SampleDesc.Count = 1;
 			swapChainDesc.SampleDesc.Quality = 0;
@@ -256,13 +268,42 @@ namespace PF::Render::DX
 		// Allocate a 2-D surface as the depth/stencil buffer and
 		// create a DepthStencil view on this surface to use on bind.
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(depthBufferFormat, backBufferWidth, backBufferHeight, 1, 1, D3D11_BIND_DEPTH_STENCIL);
+		
+		// 
+		D3D11_TEXTURE2D_DESC desc;
+		desc.Width = m_OutputWidth;
+		desc.Height = m_OutputHeight;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
 
-		ComPtr<ID3D11Texture2D> depthStencil;
-		ThrowIfFailed(m_D3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, depthStencil.GetAddressOf()));
+		HRESULT hr = m_D3DDevice->CreateTexture2D(&desc, NULL, m_DepthStencilBuffer.GetAddressOf());
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Failed CreateTexture2D");
 
-		ThrowIfFailed(m_D3DDevice->CreateDepthStencilView(depthStencil.Get(), nullptr, m_DepthStencilView.ReleaseAndGetAddressOf()));
+		hr = m_D3DDevice->CreateDepthStencilView(m_DepthStencilBuffer.Get(), NULL, m_DepthStencilView.GetAddressOf());
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Failed CreateDepthStencilView");
 
 		// TODO: Initialize windows-size dependent objects here.
+	}
+
+	void DX11Context::CreateDepthStencilState()
+	{
+		// Create depth stencil state
+		D3D11_DEPTH_STENCIL_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+
+		desc.DepthEnable = true;
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+		desc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+
+		HRESULT hr = m_D3DDevice->CreateDepthStencilState(&desc, m_DepthStencilState.GetAddressOf());
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Failed CreateDepthStencilState");
 	}
 
 	void DX11Context::OnDeviceLost()
@@ -304,15 +345,8 @@ namespace PF::Render::DX
 	{
 		D3D11_INPUT_ELEMENT_DESC layout[] =
 		{
-			{
-				"POSITION",
-				0,
-				DXGI_FORMAT_R32G32_FLOAT,
-				0,
-				0,
-				D3D11_INPUT_PER_VERTEX_DATA,
-				0
-			}
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
 
 		m_VertexShader.Initialize
@@ -331,28 +365,65 @@ namespace PF::Render::DX
 
 	void DX11Context::InitializeScene()
 	{
-		Vertex vertexes[] =
+		// first triangle
+		Vertex vertexes1[] =
 		{
-			Vertex(-.5f, 0.f),
-			Vertex(0.f, .5f),
-			Vertex(.5f, 0.f),
+			Vertex(-.5f, 0.f, 1.f, 1.f, 0.f, 0.f),
+			Vertex(0.f, .5f, 1.f, 1.f, 0.f, 0.f),
+			Vertex(.5f, 0.f, 1.f, 1.f, 0.f, 0.f),
 		};
 
 		D3D11_BUFFER_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
 
 		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertexes);
+		desc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertexes1);
 		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 
 		D3D11_SUBRESOURCE_DATA vertexBufferData;
 		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
-		vertexBufferData.pSysMem = vertexes;
+		vertexBufferData.pSysMem = vertexes1;
 
 		HRESULT hr = m_D3DDevice->CreateBuffer(&desc, &vertexBufferData, m_VertexBuffer.GetAddressOf());
 		PF_CORE_ASSERT(SUCCEEDED(hr), "Error CreateBuffer");
+		
+		// second triangle
+		Vertex vertexes2[] =
+		{
+			Vertex(-.25f, 0.f, 0.f, 0.f, 1.f, 0.f),
+			Vertex(0.f, .25f, 0.f, 0.f, 1.f, 0.f),
+			Vertex(.25f, 0.f, 0.f, 0.f, 1.f, 0.f),
+		};
+
+		ZeroMemory(&desc, sizeof(desc));
+
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertexes2);
+		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+
+		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
+		vertexBufferData.pSysMem = vertexes2;
+
+		hr = m_D3DDevice->CreateBuffer(&desc, &vertexBufferData, m_VertexBuffer2.GetAddressOf());
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Error CreateBuffer");
+		
 		LOG_CORE_TRACE("Scene Initialized");
+	}
+
+	void DX11Context::InitializeRasterizer()
+	{
+		D3D11_RASTERIZER_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+
+		desc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
+		desc.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;
+		
+		const HRESULT hr = m_D3DDevice->CreateRasterizerState(&desc, m_RasterizerState.GetAddressOf());
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Failed CreateRasterizerState");
+		LOG_CORE_TRACE("Rasterizer Initialized");
 	}
 }

@@ -15,6 +15,7 @@ namespace PF::Render
 
 		virtual bool Init(void* windowRef) = 0;
 		virtual void Clear() = 0;
+		virtual void Draw() = 0;
 		virtual void SwapChain() = 0;
 
 		virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;

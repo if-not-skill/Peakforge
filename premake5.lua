@@ -36,9 +36,24 @@ project "Peakforge"
     {   
         "%{prj.name}/source/**.h",
         "%{prj.name}/source/**.cpp",
+        "%{prj.name}/source/**.hlsl",
         "%{prj.name}/vendor/glm/glm/**.hpp",
         "%{prj.name}/vendor/glm/glm/**.inl",
     }
+
+    filter { "files:**.hlsl" }
+        flags "ExcludeFromBuild"
+        shadermodel "5.0"
+    
+    filter { "files:**PixelShader.hlsl" }
+        removeflags "ExcludeFromBuild"
+        shadertype "Pixel"
+        -- shaderentry "ForPixel"
+    filter { "files:**VertexShader.hlsl" }
+        removeflags "ExcludeFromBuild"
+        shadertype "Vertex"
+        -- shaderentry "ForVertex"
+    filter {}
 
     includedirs
     {

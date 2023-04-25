@@ -7,8 +7,12 @@ namespace PF::Render::DX
 	struct Vertex
 	{
 		Vertex() = default;
-		Vertex(float x, float y) : pos(x, y) {}
+		Vertex(float x, float y, float z, float r, float g, float b) : 
+			pos(x, y, z),
+			color(r, g, b)
+		{}
 
-		DirectX::XMFLOAT2 pos;
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 color;
 	};
 }

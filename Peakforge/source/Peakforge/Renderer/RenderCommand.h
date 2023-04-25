@@ -16,6 +16,11 @@ namespace PF::Render
 			s_Context->Clear();
 		}
 
+		static void Draw()
+		{
+			s_Context->Draw();
+		}
+
 		static void SwapChain()
 		{
 			s_Context->SwapChain();
