@@ -56,6 +56,7 @@ project "Peakforge"
 
     filter "system:windows"
         systemversion "latest"
+        debugdir "%{cfg.buildtarget.directory}"
 
         links
         {   
@@ -81,6 +82,11 @@ project "Peakforge"
         defines
         {
             "PF_PLATFORM_WINDOWS",
+        }
+
+        postbuildcommands
+        {
+            ("{COPY} %{cfg.buildtarget.directory}**.cso ../bin/" .. outputdir .. "/Sandbox/Engine/Shaders")
         }
 
     filter "configurations:Debug"

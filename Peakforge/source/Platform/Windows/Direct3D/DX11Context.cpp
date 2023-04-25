@@ -5,6 +5,8 @@
 
 #include <DirectXColors.h>
 
+#define SAMPLE_VERTEX_SHADER L"Engine/Shaders/VertexShader.cso"
+
 namespace PF::Render::DX
 {
 	struct SimpleVertex
@@ -37,6 +39,8 @@ namespace PF::Render::DX
 		CreateResources();
 
 		ShowAdapterInfo();
+
+		InitializeShaders();
 
 		return true;
 	}
@@ -95,7 +99,7 @@ namespace PF::Render::DX
 		UINT creationFlags = 0;
 
 #ifdef PF_DEBUG
-		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+		//creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
 		constexpr D3D_FEATURE_LEVEL featureLevels[] =
@@ -271,5 +275,37 @@ namespace PF::Render::DX
 		LOG_CORE_INFO("DirectX11 Initialized:");
 		LOG_CORE_INFO("\tRenderer: {0}", videoAdapterName);
 		LOG_CORE_INFO("\tVideo Memory: {0} MB", adapterDescription.DedicatedVideoMemory / (1024 * 1024));
+	}
+
+	void DX11Context::InitializeShaders()
+	{
+		LOG_CORE_INFO("Shaders Initialization:");
+		const bool success = m_VertexShader.Initialize(m_D3DDevice, SAMPLE_VERTEX_SHADER);
+
+		PF_CORE_ASSERT(success, "\tError initialize vertex shader");
+		LOG_CORE_INFO("\tVertexShader Initialized");
+
+		D3D11_INPUT_ELEMENT_DESC layout[] =
+		{
+			{
+				"POSITION",
+				0,
+				DXGI_FORMAT_R32G32_FLOAT,
+				0,
+				0,
+				D3D11_INPUT_PER_VERTEX_DATA,
+				0
+			}
+		};
+
+		const HRESULT hr = m_D3DDevice->CreateInputLayout
+		(
+			layout,
+			ARRAYSIZE(layout),
+			m_VertexShader.GetShaderBuffer()->GetBufferPointer(),
+			m_VertexShader.GetShaderBuffer()->GetBufferSize(),
+			m_InputLayout.GetAddressOf()
+		);
+		ThrowIfFailed(hr);
 	}
 }

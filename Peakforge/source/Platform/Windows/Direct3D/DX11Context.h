@@ -2,10 +2,13 @@
 
 #include "Peakforge/Renderer/GraphicsContext.h"
 
+#include "Shaders.h"
+
 #include <d3d11.h>
 #include <d3d11_1.h>
 
 #include <wrl/client.h>
+
 
 using Microsoft::WRL::ComPtr;
 
@@ -52,5 +55,12 @@ namespace PF::Render::DX
 		ComPtr<ID3D11DepthStencilView>  m_DepthStencilView;
 
 		ComPtr<IDXGIAdapter2>			m_Adapter;
+
+	private:
+		void InitializeShaders();
+
+	private:
+		ComPtr<ID3D11InputLayout>		m_InputLayout;
+		VertexShader					m_VertexShader;
 	};
 }
