@@ -42,7 +42,9 @@ namespace PF::Render::DX
 		ShowAdapterInfo();
 
 		InitializeShaders();
+		InitializeScene();
 
+		LOG_CORE_INFO("DirectX Initialized");
 		return true;
 	}
 
@@ -79,6 +81,18 @@ namespace PF::Render::DX
 
 	void DX11Context::SwapChain()
 	{
+		m_D3DContext->IASetInputLayout(m_VertexShader.GetInputLayout());
+		m_D3DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		m_D3DContext->VSSetShader(m_VertexShader.GetShader(), NULL, 0);
+		m_D3DContext->PSSetShader(m_PixelShader.GetShader(), NULL, 0);
+
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		m_D3DContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &stride, &offset);
+
+		m_D3DContext->Draw(3, 0);
+
 		// The first argument instructs DXGI to block until VSync, putting the application
 		// to sleep until the next VSync. This ensures we don't waste any cycles rendering
 		// frames that will never be displayed to the screen.
@@ -273,17 +287,17 @@ namespace PF::Render::DX
 		auto temp = std::wstring(adapterDescription.Description);
 		std::string videoAdapterName(temp.begin(), temp.end());
 		
-		LOG_CORE_INFO("DirectX11 Initialized:");
-		LOG_CORE_INFO("\tRenderer: {0}", videoAdapterName);
-		LOG_CORE_INFO("\tVideo Memory: {0} MB", adapterDescription.DedicatedVideoMemory / (1024 * 1024));
+		LOG_CORE_TRACE("VideoAdapter Initialized:");
+		LOG_CORE_TRACE("\tRenderer: {0}", videoAdapterName);
+		LOG_CORE_TRACE("\tVideo Memory: {0} MB", adapterDescription.DedicatedVideoMemory / (1024 * 1024));
 	}
 
 	void DX11Context::InitializeShaders()
 	{
-		LOG_CORE_INFO("Shaders Initialization:");
+		LOG_CORE_TRACE("Shaders Initialization:");
 
 		InitializeVertexShader();
-		initializePixelShader();
+		InitializePixelShader();
 	}
 
 	void DX11Context::InitializeVertexShader()
@@ -310,8 +324,35 @@ namespace PF::Render::DX
 		);
 	}
 
-	void DX11Context::initializePixelShader()
+	void DX11Context::InitializePixelShader()
 	{
 		m_PixelShader.Initialize(m_D3DDevice, SAMPLE_PIXEL_SHADER);
+	}
+
+	void DX11Context::InitializeScene()
+	{
+		Vertex vertexes[] =
+		{
+			Vertex(-.5f, 0.f),
+			Vertex(0.f, .5f),
+			Vertex(.5f, 0.f),
+		};
+
+		D3D11_BUFFER_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertexes);
+		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+
+		D3D11_SUBRESOURCE_DATA vertexBufferData;
+		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
+		vertexBufferData.pSysMem = vertexes;
+
+		HRESULT hr = m_D3DDevice->CreateBuffer(&desc, &vertexBufferData, m_VertexBuffer.GetAddressOf());
+		PF_CORE_ASSERT(SUCCEEDED(hr), "Error CreateBuffer");
+		LOG_CORE_TRACE("Scene Initialized");
 	}
 }

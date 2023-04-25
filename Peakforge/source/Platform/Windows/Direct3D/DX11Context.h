@@ -3,6 +3,7 @@
 #include "Peakforge/Renderer/GraphicsContext.h"
 
 #include "Shaders.h"
+#include "Vertex.h"
 
 #include <d3d11.h>
 #include <d3d11_1.h>
@@ -59,10 +60,14 @@ namespace PF::Render::DX
 	private:
 		void InitializeShaders();
 		void InitializeVertexShader();
-		void initializePixelShader();
+		void InitializePixelShader();
+
+		void InitializeScene();
 
 	private:
 		VertexShader					m_VertexShader;
 		PixelShader						m_PixelShader;
+
+		ComPtr<ID3D11Buffer>			m_VertexBuffer;
 	};
 }

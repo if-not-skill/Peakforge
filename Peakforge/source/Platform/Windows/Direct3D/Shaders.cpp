@@ -35,7 +35,7 @@ namespace PF::Render::DX
 			m_InputLayout.GetAddressOf()
 		);
 		PF_CORE_ASSERT(SUCCEEDED(hr), "\tError: CreateInputLayout");
-		LOG_CORE_INFO("\tVertexShader Initialized");
+		LOG_CORE_TRACE("\tVertexShader Initialized");
 	}
 #pragma endregion
 
@@ -60,7 +60,7 @@ namespace PF::Render::DX
 		);
 		PF_CORE_ASSERT(SUCCEEDED(hr), "\tError: CreatePixelShader");
 
-		LOG_CORE_INFO("\tPixelShader Initialized");
+		LOG_CORE_TRACE("\tPixelShader Initialized");
 	}
 #pragma endregion
 }
