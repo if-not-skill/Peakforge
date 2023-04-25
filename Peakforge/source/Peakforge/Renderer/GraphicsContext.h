@@ -14,6 +14,7 @@ namespace PF::Render
 		virtual ~GraphicsContext() = default;
 
 		virtual bool Init(void* windowRef) = 0;
+
 		virtual void Clear() = 0;
 		virtual void Draw() = 0;
 		virtual void SwapChain() = 0;

@@ -69,17 +69,8 @@ namespace PF::ImGUI
 #endif
 
 		const auto render = static_cast<Render::DX::DX11Context*>(Render::Renderer::GetNativeRenderRef());
-		success = ImGui_ImplDX11_Init
-		(
-			render->GetD3DDevice(), 
-			render->GetD3DContext()
-		);
-
-		if (!success)
-		{
-			LOG_CORE_ERROR("ImGuiLayer: ImGui_ImplDX11_Init error!");
-		}
-
+		success = ImGui_ImplDX11_Init(render->GetD3DDevice(), render->GetD3DContext());
+		PF_CORE_ASSERT(success, "ImGuiLayer: ImGui_ImplDX11_Init error!");
 		LOG_CORE_INFO("ImGuiLayer: Initialized");
 	}
 
@@ -87,11 +78,7 @@ namespace PF::ImGUI
 	{
 		// Cleanup
 		ImGui_ImplDX11_Shutdown();
-
-#ifdef PF_PLATFORM_WINDOWS
 		ImGui_ImplWin32_Shutdown();
-#endif
-
 		ImGui::DestroyContext();
 
 		LOG_CORE_INFO("ImGuiLayer: Detached");

@@ -23,6 +23,7 @@ namespace PF::Render::DX
 
 		// Inherited via GraphicsContext
 		bool Init(void* windowRef) override;
+
 		void Clear() override;
 		void Draw() override;
 		void SwapChain() override;
@@ -36,6 +37,8 @@ namespace PF::Render::DX
 		inline ID3D11DeviceContext* GetD3DContext() const { return m_D3DContext.Get(); }
 
 	private:
+		void Shutdown();
+
 		void CreateDevice();
 		void CreateResources();
 

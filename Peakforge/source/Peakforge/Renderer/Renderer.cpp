@@ -15,10 +15,6 @@ namespace PF::Render
 		RenderCommand::Draw();
 	}
 
-	void Renderer::Shutdown()
-	{
-	}
-
 	void Renderer::Clear()
 	{
 		RenderCommand::Clear();

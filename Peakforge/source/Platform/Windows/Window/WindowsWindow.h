@@ -10,6 +10,8 @@ namespace PF
 		WindowsWindow(const WindowProps& props);
 		~WindowsWindow() override;
 
+		void Shutdown() override;
+
 		virtual void OnUpdate() override;
 		virtual void SetVSync(bool enabled) override;
 
@@ -27,7 +29,6 @@ namespace PF
 		inline bool SetupedCallback() const { return m_Data.EventCallback != nullptr; }
 
 		virtual bool Init(const WindowProps& props);
-		virtual void Shutdown();
 
 		// === Event Handlers =========================================================
 		// Window Handlers
@@ -66,6 +67,7 @@ namespace PF
 	private:
 		static WindowsWindow* s_Instance;
 		HWND m_Hwnd;
+		WNDCLASSEXW wc;
 
 		struct WindowData 
 		{

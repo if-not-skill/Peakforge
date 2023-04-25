@@ -29,15 +29,16 @@ namespace PF
 		PushOverlay(m_ImGuiLayer);
 	}
 
-	Application::~Application()
-	{
-	}
+	Application::~Application() {}
 
 	void Application::Run()
 	{
 		while (m_Running)
 		{
 			m_Window->OnUpdate();
+
+			if (!m_Running)
+				break;
 
 			Render::Renderer::Clear();
 

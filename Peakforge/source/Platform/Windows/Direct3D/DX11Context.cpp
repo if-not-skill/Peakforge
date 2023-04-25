@@ -24,7 +24,9 @@ namespace PF::Render::DX
 	}
 
 	DX11Context::~DX11Context()
-	= default;
+	{
+		Shutdown();
+	}
 
 	bool DX11Context::Init(void* windowRef)
 	{
@@ -47,6 +49,16 @@ namespace PF::Render::DX
 
 		LOG_CORE_INFO("DirectX Initialized");
 		return true;
+	}
+
+	void DX11Context::Shutdown()
+	{
+		if (m_RenderTargetView) { m_RenderTargetView->Release(); m_RenderTargetView = nullptr; }
+		if (m_SwapChain) { m_SwapChain->Release(); m_SwapChain = nullptr; }
+		if (m_D3DContext) { m_D3DContext->Release(); m_D3DContext = nullptr; }
+		if (m_D3DDevice) { m_D3DDevice->Release(); m_D3DDevice = nullptr; }
+
+		LOG_CORE_INFO("DirectX Shitdowned");
 	}
 
 	void DX11Context::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

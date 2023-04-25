@@ -30,9 +30,9 @@ namespace PF
 		PF_CORE_ASSERT(success, "Could not initialize WinApi Window!");
 	}
 	
-	WindowsWindow::~WindowsWindow()
+	WindowsWindow::~WindowsWindow() 
 	{
-		WindowsWindow::Shutdown();
+		Shutdown();
 	}
 	
 	void WindowsWindow::OnUpdate()
@@ -42,6 +42,8 @@ namespace PF
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+			if (msg.message == WM_QUIT)
+				s_Instance->OnWindowDestroy();
 		}
 	}
 
@@ -76,7 +78,7 @@ namespace PF
 		);
 
 
-		const WNDCLASSEXW wc = 
+		wc = 
 		{
 			sizeof(wc),
 			CS_CLASSDC,
@@ -130,6 +132,9 @@ namespace PF
 	void WindowsWindow::Shutdown()
 	{
 		DestroyWindow(m_Hwnd);
+		RegisterClassExW(&wc);
+
+		LOG_CORE_INFO("WinAPI window Shitdowned");
 	}
 
 	void WindowsWindow::OnWindowSize(WPARAM wparam, LPARAM lparam)
