@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Peakforge/Renderer/GraphicsContext.h"
+#include "Peakforge/Renderer/Buffer.h"
 
 #include "Shaders.h"
 #include "Vertex.h"
@@ -80,7 +81,8 @@ namespace PF::Render::DX
 		VertexShader						m_VertexShader;
 		PixelShader							m_PixelShader;
 
-		ComPtr<ID3D11Buffer>				m_VertexBuffer;
+		VertexBuffer<Vertex>*				m_VertexBuffer;
+		IndexBuffer<DWORD>*					m_IndexBuffer;
 	
 		ComPtr<ID3D11RasterizerState>		m_RasterizerState;
 

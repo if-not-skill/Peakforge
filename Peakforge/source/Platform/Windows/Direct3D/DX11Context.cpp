@@ -2,6 +2,7 @@
 #include "DX11Context.h"
 
 #include "Platform/Windows/Window/WindowsWindow.h"
+#include "Peakforge/Renderer/BufferMaker.h"
 
 #include <DirectXColors.h>
 #include <WICTextureLoader.h>
@@ -111,12 +112,11 @@ namespace PF::Render::DX
 		m_D3DContext->VSSetShader(m_VertexShader.GetShader(), NULL, 0);
 		m_D3DContext->PSSetShader(m_PixelShader.GetShader(), NULL, 0);
 
-		UINT stride = sizeof(Vertex);
-		UINT offset = 0;
-
 		m_D3DContext->PSSetShaderResources(0, 1, m_BaseTexture.GetAddressOf());
-		m_D3DContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &stride, &offset);
-		m_D3DContext->Draw(6, 0);
+		m_VertexBuffer->Bind();
+		m_IndexBuffer->Bind();
+
+		m_D3DContext->DrawIndexed(m_IndexBuffer->GetCount(), 0, 0);
 	}
 
 	void DX11Context::SwapChain()
@@ -384,32 +384,22 @@ namespace PF::Render::DX
 	void DX11Context::InitializeScene()
 	{
 		// first triangle
-		Vertex vertexes1[] =
+		Vertex vertexes[] =
 		{
 			Vertex(-0.5f, -0.5f, 1.0f, 0.0f, 1.0f),
 			Vertex(-0.5f, 0.5f, 1.0f, 0.0f, 0.0f),
 			Vertex(0.5f, 0.5f, 1.0f, 1.0f, 0.0f),
-
-			Vertex(-0.5f, -0.5f, 1.0f, 0.0f, 1.0f),
-			Vertex(0.5f, 0.5f, 1.0f, 1.0f, 0.0f),
 			Vertex(0.5f, -0.5f, 1.0f, 1.0f, 1.0f),
 		};
+		m_VertexBuffer = CreateVertexBuffer<Vertex>(vertexes, ARRAYSIZE(vertexes));
 
-		D3D11_BUFFER_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		DWORD indices[] =
+		{
+			0, 1, 2,
+			0, 2, 3
+		};
+		m_IndexBuffer = CreateIndexBuffer<DWORD>(indices, ARRAYSIZE(indices));
 
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertexes1);
-		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		desc.CPUAccessFlags = 0;
-		desc.MiscFlags = 0;
-
-		D3D11_SUBRESOURCE_DATA vertexBufferData;
-		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
-		vertexBufferData.pSysMem = vertexes1;
-
-		HRESULT hr = m_D3DDevice->CreateBuffer(&desc, &vertexBufferData, m_VertexBuffer.GetAddressOf());
-		PF_CORE_ASSERT(SUCCEEDED(hr), "Error CreateBuffer");
 		LOG_CORE_TRACE("Scene Initialized");
 	}
 

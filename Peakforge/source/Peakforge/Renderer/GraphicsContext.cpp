@@ -2,26 +2,20 @@
 #include "GraphicsContext.h"
 
 #include "Platform/Windows/Direct3D/DX11Context.h"
+#include "Renderer.h"
 
 namespace PF::Render
 {
-#ifdef PF_PLATFORM_WINDOWS
-	GraphicsContext::API GraphicsContext::s_API = API::DirectX11;
-#endif
-
 	GraphicsContext* GraphicsContext::Create()
 	{
-		switch (s_API)
+		Renderer::API api = Renderer::GetAPI();
+		switch (api)
 		{
-		case API::None:
-		{
-			PF_CORE_ASSERT(false, "RernderAPI::None is currently not supported!");
-			return nullptr;
-		}
-		case API::DirectX11:
-		{
-			return new DX::DX11Context();
-		}
+		case Renderer::API::None: PF_CORE_ASSERT(false, "RernderAPI::None is currently not supported!"); return nullptr;
+
+#ifdef PF_PLATFORM_WINDOWS
+		case Renderer::API::DirectX11: return new DX::DX11Context();
+#endif
 		}
 
 		PF_CORE_ASSERT(false, "Unknown RenderAPI!");

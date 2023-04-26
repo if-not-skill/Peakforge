@@ -7,6 +7,7 @@ namespace PF::Render::DX
 	struct Vertex
 	{
 		Vertex() = default;
+		Vertex(const Vertex& v) = default;
 		Vertex(float x, float y, float z, float u, float v) : /*, float r, float g, float b*/ 
 			pos(x, y, z),
 			texCoord(u, v)
