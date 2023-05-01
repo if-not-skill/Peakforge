@@ -3,6 +3,7 @@
 
 #include "Platform/Windows/Window/WindowsWindow.h"
 #include "Peakforge/Renderer/BufferMaker.h"
+#include "ConstantBufferTypes.h"
 
 #include <DirectXColors.h>
 #include <WICTextureLoader.h>
@@ -111,11 +112,12 @@ namespace PF::Render::DX
 
 		m_D3DContext->VSSetShader(m_VertexShader.GetShader(), NULL, 0);
 		m_D3DContext->PSSetShader(m_PixelShader.GetShader(), NULL, 0);
+		
+		m_ConstantBuffer->data.yOffset -= 0.001f;
+		m_ConstantBuffer->Bind();
+		m_D3DContext->VSSetConstantBuffers(0, 1, m_ConstantBuffer->GetAddressOf());
 
 		m_D3DContext->PSSetShaderResources(0, 1, m_BaseTexture.GetAddressOf());
-		m_VertexBuffer->Bind();
-		m_IndexBuffer->Bind();
-
 		m_D3DContext->DrawIndexed(m_IndexBuffer->GetCount(), 0, 0);
 	}
 
@@ -399,7 +401,14 @@ namespace PF::Render::DX
 			0, 2, 3
 		};
 		m_IndexBuffer = CreateIndexBuffer<DWORD>(indices, ARRAYSIZE(indices));
+		
+		m_ConstantBuffer = new ConstantBuffer<CB_VS_VertexShader>();
 
+		m_VertexBuffer->Bind();
+		m_IndexBuffer->Bind();
+		m_ConstantBuffer->Bind();
+		m_ConstantBuffer->data.xOffset = 0.f;
+		
 		LOG_CORE_TRACE("Scene Initialized");
 	}
 

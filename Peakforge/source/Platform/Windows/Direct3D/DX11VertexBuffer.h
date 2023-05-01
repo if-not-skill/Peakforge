@@ -17,7 +17,7 @@ namespace PF::Render::DX
 		DX11VertexBuffer(T* vertices, uint32_t num)
 			: VertexBuffer<T>()
 		{
-			auto renderContext = (DX11Context*)Renderer::GetNativeRenderRef();
+			const auto renderContext = static_cast<DX11Context*>(Renderer::GetNativeRenderRef());
 			m_D3DDevice = renderContext->GetD3DDevice();
 			m_D3DContext = renderContext->GetD3DContext();
 
@@ -45,8 +45,8 @@ namespace PF::Render::DX
 
 		void Bind() const override
 		{
-			UINT stride = sizeof(Vertex);
-			UINT offset = 0;
+			constexpr UINT stride = sizeof(Vertex);
+			constexpr UINT offset = 0;
 			m_D3DContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &stride, &offset);
 		}
 

@@ -3,6 +3,7 @@
 #include "Peakforge/Renderer/GraphicsContext.h"
 #include "Peakforge/Renderer/Buffer.h"
 
+#include "ConstantBuffer.h"
 #include "Shaders.h"
 #include "Vertex.h"
 
@@ -50,22 +51,22 @@ namespace PF::Render::DX
 		void ShowAdapterInfo() const;
 
 	private:
-		HWND							m_Window;
-		int								m_OutputWidth;
-		int								m_OutputHeight;
+		HWND								m_Window;
+		int									m_OutputWidth;
+		int									m_OutputHeight;
 
-		D3D_FEATURE_LEVEL				m_FeatureLevel;
-		ComPtr<ID3D11Device1>			m_D3DDevice;
-		ComPtr<ID3D11DeviceContext1>	m_D3DContext;
+		D3D_FEATURE_LEVEL					m_FeatureLevel;
+		ComPtr<ID3D11Device1>				m_D3DDevice;
+		ComPtr<ID3D11DeviceContext1>		m_D3DContext;
 		
-		ComPtr<IDXGISwapChain1>         m_SwapChain;
-		ComPtr<ID3D11RenderTargetView>  m_RenderTargetView;
+		ComPtr<IDXGISwapChain1>				m_SwapChain;
+		ComPtr<ID3D11RenderTargetView>		m_RenderTargetView;
 
-		ComPtr<ID3D11DepthStencilView>  m_DepthStencilView;
-		ComPtr<ID3D11Texture2D>			m_DepthStencilBuffer;
-		ComPtr<ID3D11DepthStencilState> m_DepthStencilState;
+		ComPtr<ID3D11DepthStencilView>		m_DepthStencilView;
+		ComPtr<ID3D11Texture2D>				m_DepthStencilBuffer;
+		ComPtr<ID3D11DepthStencilState>		m_DepthStencilState;
 
-		ComPtr<IDXGIAdapter2>			m_Adapter;
+		ComPtr<IDXGIAdapter2>				m_Adapter;
 
 	private:
 		void InitializeShaders();
@@ -83,7 +84,9 @@ namespace PF::Render::DX
 
 		VertexBuffer<Vertex>*				m_VertexBuffer;
 		IndexBuffer<DWORD>*					m_IndexBuffer;
-	
+		ConstantBuffer<CB_VS_VertexShader>*	m_ConstantBuffer;
+
+
 		ComPtr<ID3D11RasterizerState>		m_RasterizerState;
 
 		ComPtr<ID3D11SamplerState>			m_SamplerState;
